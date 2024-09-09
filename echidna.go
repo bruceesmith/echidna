@@ -14,6 +14,8 @@ var (
 )
 
 var (
+	// BuildDate is the timestamp for when this program was compiled
+	BuildDate string = `Filled in during the build`
 	// ErrConfigOK is returned when --checkcfg finds the configuration in good order
 	ErrConfigOK = errors.New("configuration is OK")
 	// ErrVersion is returned when --version is given
