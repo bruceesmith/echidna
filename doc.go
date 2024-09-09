@@ -20,4 +20,5 @@ and Union.
 */
 package echidna
 
-//go:generate go run github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest ./... --output README.md
+//go:generate go run github.com/princjef/gomarkdoc/cmd/gomarkdoc@latest ./... --output body.md
+//go:generate ./make_doc.sh
