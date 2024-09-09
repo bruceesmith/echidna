@@ -14,12 +14,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// var (
-// 	program, version string
-// 	// ErrVersion is returned when --version is given
-// 	// ErrVersion = errors.New("version requested")
-// )
-
 // Init initialises the echidna package for the use case where the program
 // does not provide and "comamnds" on the command line and it uses the Viper
 // package to handle the configuration
@@ -28,7 +22,7 @@ func Init[E any](prog, ver string, config *E, validate func(cf *E) error, flagfu
 	echidna.Version = ver
 	fs := pflag.NewFlagSet("vipe", pflag.ContinueOnError)
 
-	// Define standard command ine flags
+	// Define standard command line flags
 	var cfg = fs.String("cfg", "", "path to configuration file")
 	var checkConfig = fs.Bool("checkcfg", false, "check the configuration and then exit")
 	var showHelp = fs.Bool("help", false, "print help and then exit")
