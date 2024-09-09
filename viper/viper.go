@@ -64,7 +64,7 @@ func Init[E any](prog, ver string, config *E, validate func(cf *E) error, flagfu
 	}
 
 	// Set the logging level
-	logger.SetLevel(slog.Level(*&logging))
+	logger.SetLevel(slog.Level(logging))
 
 	// Read the configuration file
 	v := viper.New()
