@@ -2,6 +2,34 @@
 // Use of this source code is governed by the Apache
 // License that can be found in the LICENSE file.
 
+/*
+Package version supports either printing or return of information concerning
+the compiled CLI or daemon.
+
+[Version] writes a text version of [Info] to [os.Stderr] by default. If an optional [io.Writer]
+is supplied the output is written using that [io.Writer].
+
+Alternatively, [JSON] returns a JSON-encoded [Info] struct as a string.
+
+Examples:
+
+	// Print version information to stderr
+	version.Version()
+
+	// Print version information into a bytes.Buffer
+	b := bytes.NewBufferString("")
+	version.Version(b)
+	fmt.Println(b.String())
+
+	// Return the version information as JSON
+	jason := version.JSON()
+	v := version.Info{}
+	err = json.Unmarshal([]byte(jason), &b)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%v\n", v)
+*/
 package version
 
 import (

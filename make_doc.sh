@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Copyright © 2024 Bruce Smith <bruceesmith@gmait.com>
+# Use of this source code is governed by the Apache
+# License that can be found in the LICENSE file.
+
 cat header.md body.md >README.md
 rm body.md
 sed -i '/^# echidna/d' README.md
