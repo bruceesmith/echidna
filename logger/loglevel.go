@@ -5,6 +5,7 @@
 package logger
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 )
@@ -43,7 +44,7 @@ func (ll *LogLevel) Set(ls string) (err error) {
 	case "trace":
 		*ll = LogLevel(LevelTrace)
 	default:
-		*ll = LogLevel(slog.LevelInfo)
+		err = fmt.Errorf("invdlid log level %v", ls)
 	}
 	return
 }
