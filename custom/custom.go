@@ -32,6 +32,8 @@ func Init[E any](prog, ver string, config *E, unmarshal func([]byte, *E) error, 
 	var showHelp = fs.Bool("help", false, "print help and then exit")
 	var logging logger.LogLevel
 	fs.Var(&logging, "log", "logging level (slog values plus LevelTrace)")
+	var traces logger.Traces
+	fs.Var(&traces, "trace", `comma-separated list of trace areas ["all" for every possible area]`)
 	var printVersion = fs.Bool("version", false, "print version details and then exit")
 
 	// Define any flags using the pflags package, bind any of them to Viper keys, etc.
@@ -63,6 +65,11 @@ func Init[E any](prog, ver string, config *E, unmarshal func([]byte, *E) error, 
 
 	// Set the logging level
 	logger.SetLevel(slog.Level(logging))
+
+	// Register areas to be traced, if any
+	if len(traces) != 0 {
+		logger.SetTraceIds(traces...)
+	}
 
 	// Read the config file and unmarshal it into the configuration struct
 	if len(*cfg) > 0 {
