@@ -65,7 +65,7 @@ tidy:
 build:
 	# Include additional build steps, like TypeScript, SCSS or Tailwind compilation here...
 	go generate ./...
-	go build -o=/tmp/${binary_name} ${main_package_path}
+	go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o=/tmp/${binary_name} ${main_package_path}
 
 ## run: run the  application
 .PHONY: run
