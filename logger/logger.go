@@ -9,7 +9,9 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"runtime"
 	"strings"
+	"time"
 
 	"github.com/bruceesmith/echidna/set"
 )
@@ -116,8 +118,10 @@ func Trace(msg string, args ...any) {
 // TraceID emits one JSON-formatted log entry if tracing is enabled for the requested ID
 func TraceID(id string, msg string, args ...any) {
 	if traceIds.Contains(strings.ToLower(id)) || traceIds.Contains("all") {
-		ctx := context.Background()
-		trace.Log(ctx, LevelTrace, msg, args...)
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:]) // skip [Callers, Infof]
+		r := slog.NewRecord(time.Now(), LevelTrace, msg, pcs[0])
+		_ = trace.Handler().Handle(context.Background(), r)
 	}
 }
 
