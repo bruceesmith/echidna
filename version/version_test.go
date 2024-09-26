@@ -26,7 +26,7 @@ func Test_makeVersion(t *testing.T) {
 	}
 }
 
-func TestVersion(t *testing.T) {
+func TestPrint(t *testing.T) {
 	type args struct {
 		w []io.Writer
 	}
@@ -38,22 +38,22 @@ func TestVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Version(tt.args.w...)
+			Print(tt.args.w...)
 		})
 	}
 }
 
-func TestJSON(t *testing.T) {
+func TestVersion(t *testing.T) {
 	tests := []struct {
-		name      string
-		wantJason string
+		name string
+		want Info
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotJason := JSON(); gotJason != tt.wantJason {
-				t.Errorf("JSON() = %v, want %v", gotJason, tt.wantJason)
+			if got := Version(); got != tt.want {
+				t.Errorf("Version() = %v, want %v", got, tt.want)
 			}
 		})
 	}

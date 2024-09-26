@@ -6,25 +6,23 @@
 Package version supports either printing or return of information concerning
 the compiled CLI or daemon.
 
-[Version] writes a text version of [Info] to [os.Stderr] by default. If an optional [io.Writer]
+[Print] writes a text version of [Info] to [os.Stderr] by default. If an optional [io.Writer]
 is supplied the output is written using that [io.Writer].
 
-Alternatively, [JSON] returns a JSON-encoded [Info] struct as a string.
+Alternatively, [Version] returns an [Info] struct
 
 Examples:
 
 	// Print version information to stderr
-	version.Version()
+	version.Print()
 
 	// Print version information into a bytes.Buffer
 	b := bytes.NewBufferString("")
-	version.Version(b)
+	version.Print(b)
 	fmt.Println(b.String())
 
-	// Return the version information as JSON
-	jason := version.JSON()
-	v := version.Info{}
-	err = json.Unmarshal([]byte(jason), &b)
+	// Return the version information as an Info struct
+	info := version.Version
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +31,6 @@ Examples:
 package version
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -75,8 +72,8 @@ func makeVersion() (vi Info) {
 	return
 }
 
-// Version prints detailed version information
-func Version(w ...io.Writer) {
+// Print prints detailed version information
+func Print(w ...io.Writer) {
 	var writer io.Writer = os.Stdout
 	if len(w) > 0 {
 		writer = w[0]
@@ -93,14 +90,7 @@ func Version(w ...io.Writer) {
 	}
 }
 
-// JSON prints detailed version information in JSON format
-func JSON() (jason string) {
-	vi := makeVersion()
-	bites, err := json.Marshal(vi)
-	if err != nil {
-		jason = fmt.Sprintf("{\"error\":\"%v\"}\"", err)
-	} else {
-		jason = string(bites)
-	}
-	return
+// Version returns detailed version information
+func Version() Info {
+	return makeVersion()
 }
