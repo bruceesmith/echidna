@@ -72,7 +72,7 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 
 	// Handle "print version"
 	if printVersion {
-		version.Print()
+		version.Print(jason)
 		return echidna.ErrVersion
 	}
 

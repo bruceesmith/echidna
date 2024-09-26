@@ -6,23 +6,27 @@
 Package version supports either printing or return of information concerning
 the compiled CLI or daemon.
 
-[Print] writes a text version of [Info] to [os.Stderr] by default. If an optional [io.Writer]
-is supplied the output is written using that [io.Writer].
+[Print] writes a text version of [Info] to [os.Stdout] by default.
+- if jason is true, the output is indented JSON instead of text
+- if an optional [io.Writer] is supplied the output is written using that [io.Writer].
 
 Alternatively, [Version] returns an [Info] struct
 
 Examples:
 
-	// Print version information to stderr
-	version.Print()
+	// Print version information to stdout as human readable text
+	version.Print(false)
+
+	// Print version information to stdout as indented JSON
+	version.Print(true)
 
 	// Print version information into a bytes.Buffer
 	b := bytes.NewBufferString("")
-	version.Print(b)
+	version.Print(false, b)
 	fmt.Println(b.String())
 
 	// Return the version information as an Info struct
-	info := version.Version
+	info := version.Version()
 	if err != nil {
 		panic(err)
 	}
@@ -31,6 +35,7 @@ Examples:
 package version
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -46,7 +51,7 @@ type Info struct {
 	Commit     string `json:"vcs_commit,omitempty"`
 	CommitDate string `json:"vcs_date,omitempty"`
 	Go         string `json:"go,omitempty"`
-	Program    string `json:"progra,omitempty"`
+	Program    string `json:"program,omitempty"`
 	Version    string `json:"version,omitempty"`
 
 	Error string `json:"error,omitempty"`
@@ -73,20 +78,29 @@ func makeVersion() (vi Info) {
 }
 
 // Print prints detailed version information
-func Print(w ...io.Writer) {
+func Print(jason bool, w ...io.Writer) {
 	var writer io.Writer = os.Stdout
 	if len(w) > 0 {
 		writer = w[0]
 	}
 	vi := makeVersion()
-	fmt.Fprintf(writer, "%s %s\n", vi.Program, vi.Version)
-	fmt.Fprintf(writer, "Compiled with Go %s\n", vi.Go)
-	fmt.Fprintf(writer, "Built at %s\n", vi.BuildDate)
-	if len(vi.Commit) > 0 {
-		fmt.Fprintf(writer, "VCS commit %s\n", vi.Commit)
-	}
-	if len(vi.CommitDate) > 0 {
-		fmt.Fprintf(writer, "VCS commit time %s\n", vi.CommitDate)
+	if jason {
+		bites, err := json.MarshalIndent(vi, "", "  ")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "unable to marshal version information %v\n", err)
+		} else {
+			fmt.Fprintln(writer, string(bites))
+		}
+	} else {
+		fmt.Fprintf(writer, "%s %s\n", vi.Program, vi.Version)
+		fmt.Fprintf(writer, "Compiled with Go %s\n", vi.Go)
+		fmt.Fprintf(writer, "Built at %s\n", vi.BuildDate)
+		if len(vi.Commit) > 0 {
+			fmt.Fprintf(writer, "VCS commit %s\n", vi.Commit)
+		}
+		if len(vi.CommitDate) > 0 {
+			fmt.Fprintf(writer, "VCS commit time %s\n", vi.CommitDate)
+		}
 	}
 }
 
