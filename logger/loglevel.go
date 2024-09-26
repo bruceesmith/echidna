@@ -1,4 +1,4 @@
-// Copyright © 2024 Bruce Smith <bruceesmith@gmait.com>
+// Copyright © 2024 Bruce Smith <bruceesmith@gmail.com>
 // Use of this source code is governed by the Apache
 // License that can be found in the LICENSE file.
 
