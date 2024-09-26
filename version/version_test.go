@@ -28,7 +28,8 @@ func Test_makeVersion(t *testing.T) {
 
 func TestPrint(t *testing.T) {
 	type args struct {
-		w []io.Writer
+		jason bool
+		w     []io.Writer
 	}
 	tests := []struct {
 		name string
@@ -38,7 +39,7 @@ func TestPrint(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Print(tt.args.w...)
+			Print(tt.args.jason, tt.args.w...)
 		})
 	}
 }

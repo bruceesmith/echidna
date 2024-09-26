@@ -87,7 +87,7 @@ func Print(jason bool, w ...io.Writer) {
 	if jason {
 		bites, err := json.MarshalIndent(vi, "", "  ")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "unable to marshal version information %v\n", err)
+			fmt.Fprintf(os.Stderr, `{"error": "unable to marshal version information: %v"}\n`, err)
 		} else {
 			fmt.Fprintln(writer, string(bites))
 		}
