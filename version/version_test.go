@@ -5,8 +5,11 @@
 package version
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"reflect"
+	"regexp"
 	"testing"
 )
 
@@ -31,15 +34,52 @@ func TestPrint(t *testing.T) {
 		jason bool
 		w     []io.Writer
 	}
+	var buf = bytes.NewBufferString("")
 	tests := []struct {
 		name string
 		args args
 	}{
-		// TODO: Add test cases.
+		{
+			name: "fail",
+			args: args{},
+		},
+		{
+			name: "plain text",
+			args: args{
+				jason: false,
+				w:     []io.Writer{buf},
+			},
+		},
+		{
+			name: "json",
+			args: args{
+				jason: true,
+				w:     []io.Writer{buf},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if len(tt.args.w) == 0 {
+				return
+			}
+			buf.Reset()
 			Print(tt.args.jason, tt.args.w...)
+			if !tt.args.jason {
+				matched, err := regexp.MatchString(`.*\nCompiled.+\nBuilt.+`, buf.String())
+				if !matched || err != nil {
+					t.Errorf("Print(): matched %v error %v", matched, err)
+				}
+			} else {
+				var inf Info
+				err := json.Unmarshal(buf.Bytes(), &inf)
+				if err != nil {
+					t.Errorf("Print(): %v", err)
+				}
+				if len(inf.Error) > 0 {
+					t.Errorf("Print(): %v", inf.Error)
+				}
+			}
 		})
 	}
 }
@@ -49,7 +89,10 @@ func TestVersion(t *testing.T) {
 		name string
 		want Info
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			want: makeVersion(),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
