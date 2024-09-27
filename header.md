@@ -11,6 +11,6 @@
 * [4. set](#set)
 * [5. terminator](#terminator)
 * [6. version](#version)
-* [7. viper](#viper)
+* [7. vpr](#vpr)
 
 # <a name="overview">1. Overview</a>
