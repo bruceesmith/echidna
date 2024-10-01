@@ -7,6 +7,8 @@
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.busybox
+    pkgs.file
+    pkgs.gcc
     pkgs.go
     pkgs.gnumake
     # pkgs.python311
