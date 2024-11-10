@@ -86,16 +86,18 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 	viper.AutomaticEnv()
 
 	// Read the configuration file
-	if len(cfg) == 0 {
-		viper.SetConfigName(echidna.Program + ".yml")
-		viper.SetConfigType("yml")
-		viper.AddConfigPath(".")
-	} else {
-		viper.SetConfigFile(cfg)
-	}
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+	if config != nil {
+		if len(cfg) == 0 {
+			viper.SetConfigName(echidna.Program + ".yml")
+			viper.SetConfigType("yml")
+			viper.AddConfigPath(".")
+		} else {
+			viper.SetConfigFile(cfg)
+		}
+		err = viper.ReadInConfig()
+		if err != nil {
+			return
+		}
 	}
 
 	// Set the logging level
@@ -107,9 +109,11 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 	}
 
 	// Extract the configuration into the provided struct
-	err = viper.Unmarshal(config)
-	if err != nil {
-		return
+	if config != nil {
+		err = viper.Unmarshal(config)
+		if err != nil {
+			return
+		}
 	}
 
 	// If a validator was provided and if "checkcfg" is given, validate that the configuration makes sense
