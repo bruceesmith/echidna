@@ -122,11 +122,15 @@ func (s *Set[E]) Members() []E {
 
 // Size returns the number of values in a Set
 func (s *Set[E]) Size() int {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return len(s.values)
 }
 
 // String returns a string representation of the Set members
 func (s *Set[E]) String() string {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 	return fmt.Sprintf("%v", s.Members())
 }
 
