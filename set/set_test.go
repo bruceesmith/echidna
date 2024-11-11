@@ -107,6 +107,33 @@ func Test_set_Add(t *testing.T) {
 	}
 }
 
+func Test_set_Clear(t *testing.T) {
+	type E = int
+	type args struct {
+		in []E
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "ok",
+			args: args{
+				in: []E{1, 2},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(tt.args.in...)
+			s.Clear()
+			if s.Size() != 0 {
+				t.Errorf("Clear() = %v want empty", s)
+			}
+		})
+	}
+}
+
 func Test_set_Contains(t *testing.T) {
 	type E = int
 	type args struct {
@@ -142,6 +169,170 @@ func Test_set_Contains(t *testing.T) {
 			s := New(tt.args.in...)
 			if s.Contains(tt.args.val) != tt.want {
 				t.Errorf("Contains() = %v want %v", s, tt.want)
+			}
+		})
+	}
+}
+
+func Test_set_Delete(t *testing.T) {
+	type E = int
+	type args struct {
+		in   []E
+		vals []E
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *Set[E]
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				in:   []E{1, 2, 3},
+				vals: []E{3},
+			},
+			want: &Set[E]{
+				values: map[E]struct{}{
+					1: {},
+					2: {},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "remove nonexistent",
+			args: args{
+				in:   []E{1, 2, 3},
+				vals: []E{4},
+			},
+			want: &Set[E]{
+				values: map[E]struct{}{
+					1: {},
+					2: {},
+					3: {},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(tt.args.in...)
+			s.Delete(tt.args.vals...)
+			if !reflect.DeepEqual(s, tt.want) && !tt.wantErr {
+				t.Errorf("Remove() = %v, want %v", s, tt.want)
+			}
+		})
+	}
+}
+
+func Test_set_Difference(t *testing.T) {
+	type E = int
+	type args struct {
+		a []E
+		b []E
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Set[E]
+	}{
+		{
+			name: "ok",
+			args: args{
+				a: []E{1, 2, 3, 4},
+				b: []E{3, 4},
+			},
+			want: New([]E{1, 2}...),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sa := New(tt.args.a...)
+			sb := New(tt.args.b...)
+			d := sa.Difference(sb)
+			for _, v := range tt.want.Members() {
+				if !d.Contains(v) {
+					t.Errorf("Difference() = %v does not contain %v", d, v)
+				}
+			}
+			if tt.want.Size() != d.Size() {
+				t.Errorf("Difference() = %v has unexpected members", d)
+			}
+		})
+	}
+}
+
+func Test_set_Disjoint(t *testing.T) {
+	type E = int
+	type args struct {
+		a, b []E
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "disjoint",
+			args: args{
+				a: []E{1, 2},
+				b: []E{3, 4},
+			},
+			want: true,
+		},
+		{
+			name: "not disjoint",
+			args: args{
+				a: []E{1, 2},
+				b: []E{2, 3},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := New(tt.args.a...)
+			b := New(tt.args.b...)
+			dis := a.Disjoint(b)
+			if dis && !tt.want {
+				t.Errorf("Disjoint() = %v, want %v", dis, tt.want)
+			}
+		})
+	}
+}
+
+func Test_set_Empty(t *testing.T) {
+	type E = int
+	type args struct {
+		in []E
+	}
+	tests := []struct {
+		name      string
+		args      args
+		wantEmpty bool
+	}{
+		{
+			name: "not empty",
+			args: args{
+				in: []E{1, 2, 3},
+			},
+			wantEmpty: false,
+		},
+		{
+			name: "empty",
+			args: args{
+				in: []E{},
+			},
+			wantEmpty: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := New(tt.args.in...)
+			if s.Empty() && !tt.wantEmpty {
+				t.Errorf("Empty() = %v, want %v", s, tt.wantEmpty)
 			}
 		})
 	}
