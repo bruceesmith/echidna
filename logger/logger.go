@@ -1,5 +1,5 @@
 // Copyright © 2024 Bruce Smith <bruceesmith@gmail.com>
-// Use of this source code is governed by the Apache
+// Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
 package logger
@@ -16,38 +16,57 @@ import (
 	"github.com/bruceesmith/echidna/set"
 )
 
+// Format determines the format of each log entry
+type Format string
+
 const (
 	// LevelTrace can be set to enable tracing
 	LevelTrace slog.Level = -10
+	// Text format
+	Text Format = "text"
+	// JSON format
+	JSON Format = "json"
 )
 
 var (
-	level    slog.LevelVar
-	traceIds *set.Set[string]
-	trace    *slog.Logger
+	format       Format
+	level        slog.LevelVar
+	traceIds     *set.Set[string]
+	trace        *slog.Logger
+	normalWriter io.Writer
+	traceWriter  io.Writer
 )
 
 func init() {
+	format = Text
 	level.Set(slog.LevelInfo)
+	normalWriter, traceWriter = os.Stdout, os.Stdout
 	slog.SetDefault(
 		slog.New(
-			slog.NewTextHandler(
-				os.Stdout,
-				&slog.HandlerOptions{
-					Level: &level,
-				},
-			),
+			textHandler(normalWriter),
 		),
 	)
 	traceIds = set.New[string]()
 	trace = slog.New(
-		slog.NewJSONHandler(
-			os.Stdout,
-			&slog.HandlerOptions{
-				AddSource: true,
-				Level:     &level,
-			},
-		),
+		textHandler(traceWriter),
+	)
+}
+
+func jsonHandler(w io.Writer, trace bool) slog.Handler {
+	return slog.NewJSONHandler(
+		w,
+		&slog.HandlerOptions{
+			AddSource: trace,
+			Level:     &level,
+		},
+	)
+}
+func textHandler(w io.Writer) slog.Handler {
+	return slog.NewTextHandler(
+		w,
+		&slog.HandlerOptions{
+			Level: &level,
+		},
 	)
 }
 
@@ -72,29 +91,38 @@ func Level() string {
 
 // RedirectStandard changes the destination for normal (non-trace) logs
 func RedirectStandard(w io.Writer) {
-	slog.SetDefault(
-		slog.New(
-			slog.NewTextHandler(
-				w,
-				&slog.HandlerOptions{
-					Level: &level,
-				},
-			),
-		),
-	)
+	normalWriter = w
+	switch format {
+	case JSON:
+		slog.SetDefault(slog.New(jsonHandler(w, false)))
+	case Text:
+		slog.SetDefault(slog.New(textHandler(w)))
+	}
 }
 
 // RedirectTrace changes the destination for normal (non-trace) logs
 func RedirectTrace(w io.Writer) {
-	trace = slog.New(
-		slog.NewJSONHandler(
-			w,
-			&slog.HandlerOptions{
-				AddSource: true,
-				Level:     &level,
-			},
-		),
-	)
+	traceWriter = w
+	switch format {
+	case JSON:
+		trace = slog.New(jsonHandler(w, true))
+	case Text:
+		trace = slog.New(textHandler(w))
+	}
+}
+
+// SetFormat changes the format of log entries
+func SetFormat(f Format) {
+	switch strings.ToLower(string(f)) {
+	case "json":
+		format = JSON
+		slog.SetDefault(slog.New(jsonHandler(normalWriter, false)))
+		trace = slog.New(jsonHandler(traceWriter, true))
+	case "text":
+		format = Text
+		slog.SetDefault(slog.New(textHandler(normalWriter)))
+		trace = slog.New(textHandler(traceWriter))
+	}
 }
 
 // SetLevel sets the default level of logging
@@ -111,13 +139,17 @@ func SetTraceIds(ids ...string) {
 
 // Trace emits one JSON-formatted log entry if trace level logging is enabled
 func Trace(msg string, args ...any) {
-	ctx := context.Background()
-	trace.Log(ctx, LevelTrace, msg, args...)
+	if level.Level() == LevelTrace {
+		var pcs [1]uintptr
+		runtime.Callers(2, pcs[:]) // skip [Callers, Infof]
+		r := slog.NewRecord(time.Now(), LevelTrace, msg, pcs[0])
+		_ = trace.Handler().Handle(context.Background(), r)
+	}
 }
 
 // TraceID emits one JSON-formatted log entry if tracing is enabled for the requested ID
 func TraceID(id string, msg string, args ...any) {
-	if traceIds.Contains(strings.ToLower(id)) || traceIds.Contains("all") {
+	if level.Level() == LevelTrace && (traceIds.Contains(strings.ToLower(id)) || traceIds.Contains("all")) {
 		var pcs [1]uintptr
 		runtime.Callers(2, pcs[:]) // skip [Callers, Infof]
 		r := slog.NewRecord(time.Now(), LevelTrace, msg, pcs[0])

@@ -1,11 +1,10 @@
 // Copyright © 2024 Bruce Smith <bruceesmith@gmail.com>
-// Use of this source code is governed by the Apache
+// Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
 package vpr
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -38,8 +37,12 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 		verbose      bool
 	)
 
-	pflag.StringVar(&cfg, "cfg", "", "path to configuration file")
-	pflag.BoolVar(&checkConfig, "checkcfg", false, "check the configuration and then exit")
+	if config != nil {
+		pflag.StringVar(&cfg, "cfg", "", "path to configuration file")
+		if validate != nil {
+			pflag.BoolVar(&checkConfig, "checkcfg", false, "check the configuration and then exit")
+		}
+	}
 	pflag.BoolVar(&showHelp, "help", false, "print help and then exit")
 	pflag.BoolVar(&jason, "json", false, "output should be in JSON format")
 	viper.BindPFlag("json", pflag.Lookup("json"))
@@ -83,16 +86,18 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 	viper.AutomaticEnv()
 
 	// Read the configuration file
-	if len(cfg) == 0 {
-		viper.SetConfigName(echidna.Program + ".yml")
-		viper.SetConfigType("yml")
-		viper.AddConfigPath(".")
-	} else {
-		viper.SetConfigFile(cfg)
-	}
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+	if config != nil {
+		if len(cfg) == 0 {
+			viper.SetConfigName(echidna.Program + ".yml")
+			viper.SetConfigType("yml")
+			viper.AddConfigPath(".")
+		} else {
+			viper.SetConfigFile(cfg)
+		}
+		err = viper.ReadInConfig()
+		if err != nil {
+			return
+		}
 	}
 
 	// Set the logging level
@@ -104,21 +109,20 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 	}
 
 	// Extract the configuration into the provided struct
-	err = viper.Unmarshal(config)
-	if err != nil {
-		return
+	if config != nil {
+		err = viper.Unmarshal(config)
+		if err != nil {
+			return
+		}
 	}
 
-	// If "checkcfg" is given, validate that the configuration makes sense
+	// If a validator was provided and if "checkcfg" is given, validate that the configuration makes sense
 	if checkConfig {
-		if validate != nil {
-			err = validate(config)
-			if err != nil {
-				return
-			}
-			return echidna.ErrConfigOK
+		err = validate(config)
+		if err != nil {
+			return
 		}
-		return errors.New("checkcfg requested but no validator function provided")
+		return echidna.ErrConfigOK
 	}
 	return
 }
