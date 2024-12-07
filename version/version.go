@@ -74,6 +74,13 @@ func makeVersion() (vi Info) {
 	}
 	vi.Program = echidna.Program
 	vi.Version = echidna.Version
+	if len(vi.Version) == 0 {
+		mod := &bi.Main
+		if mod.Replace != nil {
+			mod = mod.Replace
+		}
+		vi.Version = mod.Version
+	}
 	return
 }
 
