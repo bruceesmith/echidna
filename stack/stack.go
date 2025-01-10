@@ -25,7 +25,7 @@ func (s *Stack[T]) IsEmpty() bool {
 }
 
 // Peek returns a copy of the top element off the stack
-func (s *Stack[T]) Peek() (value T, empty bool) {
+func (s *Stack[T]) Peek() (value T, ok bool) {
 	s.mut.Lock()
 	defer s.mut.Unlock()
 
@@ -39,7 +39,7 @@ func (s *Stack[T]) Peek() (value T, empty bool) {
 }
 
 // Pop removes the top element and returns it
-func (s *Stack[T]) Pop() (value T, empty bool) {
+func (s *Stack[T]) Pop() (value T, ok bool) {
 	s.mut.Lock()
 	defer s.mut.Unlock()
 
