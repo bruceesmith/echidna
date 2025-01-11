@@ -167,6 +167,38 @@ func TestInfo(t *testing.T) {
 	}
 }
 
+func Test_jsonHandler(t *testing.T) {
+	type args struct {
+		trace bool
+	}
+	tests := []struct {
+		name string
+		args args
+	}{{
+		name: "trace",
+		args: args{
+			trace: true,
+		},
+	},
+
+		{
+			name: "no-trace",
+			args: args{
+				trace: false,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &bytes.Buffer{}
+			if got := jsonHandler(w, tt.args.trace); got == nil {
+				t.Error("jsonHandler() returned nil")
+			}
+
+		})
+	}
+}
+
 func TestLevel(t *testing.T) {
 	tests := []struct {
 		name string
@@ -196,14 +228,21 @@ func TestLevel(t *testing.T) {
 
 func TestRedirectStandard(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
+		format Format
 	}{
 		{
-			name: "ok",
+			name:   "json",
+			format: JSON,
+		},
+		{
+			name:   "text",
+			format: Text,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			format = tt.format
 			w := &bytes.Buffer{}
 			before := slog.Default()
 			RedirectStandard(w)
@@ -217,14 +256,21 @@ func TestRedirectStandard(t *testing.T) {
 
 func TestRedirectTrace(t *testing.T) {
 	tests := []struct {
-		name string
+		name   string
+		format Format
 	}{
 		{
-			name: "ok",
+			name:   "json",
+			format: JSON,
+		},
+		{
+			name:   "text",
+			format: Text,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			format = tt.format
 			w := &bytes.Buffer{}
 			before := *trace
 			RedirectTrace(w)
@@ -232,6 +278,34 @@ func TestRedirectTrace(t *testing.T) {
 			if before == after {
 				t.Errorf("RedirectTrace() before = %v, after = %v", before, after)
 			}
+		})
+	}
+}
+
+func TestSetFormat(t *testing.T) {
+	type args struct {
+		f Format
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "json",
+			args: args{
+				f: JSON,
+			},
+		},
+		{
+			name: "text",
+			args: args{
+				f: Text,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			SetFormat(tt.args.f)
 		})
 	}
 }
@@ -318,7 +392,7 @@ func TestTrace(t *testing.T) {
 				args: []any{"one", 1},
 			},
 			level:  LevelTrace,
-			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1`,
+			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1}`,
 		},
 		{
 			name: "trace-below-level",
@@ -331,6 +405,7 @@ func TestTrace(t *testing.T) {
 		}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			SetLevel(tt.level)
 			w := &bytes.Buffer{}
 			trace =
 				slog.New(
@@ -342,9 +417,10 @@ func TestTrace(t *testing.T) {
 					),
 				)
 			Trace(tt.args.msg, tt.args.args...)
-			ok, err := regexp.MatchString(tt.wantRe, w.String())
+			s := w.String()
+			ok, err := regexp.MatchString(tt.wantRe, s)
 			if !ok {
-				t.Errorf("Trace() got %s want %s error %s", w.String(), tt.wantRe, err)
+				t.Errorf("Trace() got %s want %s error %v", s, tt.wantRe, err)
 			}
 		})
 	}
@@ -383,7 +459,7 @@ func TestTraceID(t *testing.T) {
 			},
 			level:  LevelTrace,
 			id:     "m1",
-			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1`,
+			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1}`,
 		},
 		{
 			name: "trace-below-level",
@@ -405,12 +481,13 @@ func TestTraceID(t *testing.T) {
 			},
 			level:  LevelTrace,
 			id:     "m1",
-			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1`,
+			wantRe: `^{"time":".+,"level":"DEBUG-6","msg":"trace","one":1}`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			w := &bytes.Buffer{}
+			SetLevel(tt.level)
 			trace =
 				slog.New(
 					slog.NewJSONHandler(
@@ -422,9 +499,10 @@ func TestTraceID(t *testing.T) {
 				)
 			traceIds = tt.args.ids
 			TraceID(tt.id, tt.args.msg, tt.args.args...)
-			ok, err := regexp.MatchString(tt.wantRe, w.String())
+			s := w.String()
+			ok, err := regexp.MatchString(tt.wantRe, s)
 			if !ok {
-				t.Errorf("Trace() got %s want %s error %s", w.String(), tt.wantRe, err)
+				t.Errorf("Trace() got %s want %s error %s", s, tt.wantRe, err)
 			}
 		})
 	}
