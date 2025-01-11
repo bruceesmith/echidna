@@ -9,8 +9,9 @@
 * [2. custom](#custom)
 * [3. logger](#logger)
 * [4. set](#set)
-* [5. terminator](#terminator)
-* [6. version](#version)
-* [7. vpr](#vpr)
+* [5. stack](#stack)
+* [6. terminator](#terminator)
+* [7. version](#version)
+* [8. vpr](#vpr)
 
 # <a name="overview">1. Overview</a>
