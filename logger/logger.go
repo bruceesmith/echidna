@@ -143,6 +143,7 @@ func Trace(msg string, args ...any) {
 		var pcs [1]uintptr
 		runtime.Callers(2, pcs[:]) // skip [Callers, Infof]
 		r := slog.NewRecord(time.Now(), LevelTrace, msg, pcs[0])
+		r.Add(args...)
 		_ = trace.Handler().Handle(context.Background(), r)
 	}
 }
@@ -153,6 +154,7 @@ func TraceID(id string, msg string, args ...any) {
 		var pcs [1]uintptr
 		runtime.Callers(2, pcs[:]) // skip [Callers, Infof]
 		r := slog.NewRecord(time.Now(), LevelTrace, msg, pcs[0])
+		r.Add(args...)
 		_ = trace.Handler().Handle(context.Background(), r)
 	}
 }
