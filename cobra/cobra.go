@@ -39,7 +39,7 @@ func Init[E any](prog, ver string, config *E, short, use string, validate func(c
 	var (
 		cfgPath      string
 		checkConfig  bool
-		logging      logger.LogLevel = logger.LogLevel(slog.LevelInfo)
+		logging      = logger.LogLevel(slog.LevelInfo)
 		printVersion bool
 		traces       logger.Traces
 	)

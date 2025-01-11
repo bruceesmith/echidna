@@ -32,7 +32,7 @@ func Init[E any](prog, ver string, config *E, envPrefix string, validate func(cf
 		jason        bool
 		logging      logger.LogLevel
 		showHelp     bool
-		traces       logger.Traces = make(logger.Traces, 0)
+		traces       = make(logger.Traces, 0)
 		printVersion bool
 		verbose      bool
 	)
