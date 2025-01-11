@@ -6,6 +6,7 @@ package set
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -430,6 +431,37 @@ func Test_set_Members(t *testing.T) {
 				}
 				if !found && !tt.wantErr {
 					t.Errorf("Members(): wanted value %v not in members %v", want, members)
+				}
+			}
+		})
+	}
+}
+
+func Test_set_String(t *testing.T) {
+	type E = int
+	type args struct {
+		in []E
+	}
+	tests := []struct {
+		name string
+		args args
+		want []string
+	}{
+		{
+			name: "ok",
+			args: args{
+				in: []E{1, 2},
+			},
+			want: []string{"1", "2"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := New(tt.args.in...)
+			s := a.String()
+			for _, v := range tt.want {
+				if !strings.Contains(s, v) {
+					t.Errorf("String(): wanted %v got %v", v, s)
 				}
 			}
 		})
