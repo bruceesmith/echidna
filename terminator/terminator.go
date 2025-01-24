@@ -62,7 +62,7 @@ func SetDefault(t *Terminator) {
 	defaultTerminator.Store(t)
 }
 
-// ShuttingDown returns true if shutdown is in Default().progress
+// ShuttingDown returns true if shutdown is in progress
 func ShuttingDown() bool {
 	return Default().shuttingDown
 }
