@@ -385,7 +385,7 @@ type Observable struct {
 }
 ```
 
-# <a name="programmme">4. program</a>
+# <a name="programme">4. program</a>
 
 ```go
 import "github.com/bruceesmith/echidna/program"
