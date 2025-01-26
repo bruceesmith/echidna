@@ -2,6 +2,11 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
+/*
+Package terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop
+of a sync.WaitGroup.There is a default Terminator accessible through top level functions (Add, Done, Wait and
+so on) that call the corresponding Terminator methods
+*/
 package terminator
 
 import (

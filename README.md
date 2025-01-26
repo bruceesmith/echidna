@@ -21,13 +21,19 @@
 import "github.com/bruceesmith/echidna"
 ```
 
-Package echidna provides helpers for building robust Go daemons and CLIs
+Package echidna provides sub\-packages for building robust Go daemons and CLIs
 
-Type Terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup. There is a default Terminator accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
+- logger supports logging and tracing based on the standard library package slog.
 
-Another group of functions support logging and tracing. Debug, Error, Info and Warn operate like their package slog equivalents, with the level of logging modifiable using SetLevel. A custom logging level \(LevelTrace\) can be supplied to SetLevel to enable tracing. Tracing can be unconditional when calling Trace, or only enabled for pre\-defined identifiers when calling TraceID. Identifiers for TraceID are registered by calling SetTraceIDs. By default, all debug, error, info and warn messages go to Stdout, and traces go to Stderr; these destinations can be changed by calling RedirectNormal and RedirectTrace respectively.
+- program builds upon the Github packages knadh/koanf and urfave/cli/v3 to make it extremely simple to use the features of those two excellent packages in concert.
 
-Type Set defines methods for manipulating a generic set data structure via the expected operations Add, Contains, Intersection, Members, String and Union.
+- set defines goroutine\-safe methods for manipulating a generic set data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
+
+- stack defines goroutine\-safe methods for manipulating a generic stack data structure via the standard operations IsEmpty, Peek, Pop, Pushand Size.
+
+- terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup. There is a default Terminator accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
+
+Refer to the documentation for the individual packages for more details.
 
 ## Index
 
@@ -66,6 +72,10 @@ var (
 import "github.com/bruceesmith/echidna/logger"
 ```
 
+Package logger supports logging and tracing based on the standard library package slog.
+
+Debug, Error, Info and Warn operate like their package slog equivalents, with the level of logging modifiable using SetLevel. A custom logging level \(LevelTrace\) can be supplied to SetLevel to enable tracing. Tracing can be unconditional when calling Trace, or only enabled for pre\-defined identifiers when calling TraceID. Identifiers for TraceID are registered by calling SetTraceIDs. By default, all debug, error, info and warn messages go to Stdout, and traces go to Stderr; these destinations can be changed by calling RedirectNormal and RedirectTrace respectively
+
 ## Index
 
 - [func Debug\(msg string, args ...any\)](<#Debug>)
@@ -94,7 +104,7 @@ import "github.com/bruceesmith/echidna/logger"
 
 
 <a name="Debug"></a>
-## func [Debug](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L74>)
+## func [Debug](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L84>)
 
 ```go
 func Debug(msg string, args ...any)
@@ -103,7 +113,7 @@ func Debug(msg string, args ...any)
 Debug emits a debug log
 
 <a name="Error"></a>
-## func [Error](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L79>)
+## func [Error](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L89>)
 
 ```go
 func Error(msg string, args ...any)
@@ -112,7 +122,7 @@ func Error(msg string, args ...any)
 Error emits an error log
 
 <a name="Info"></a>
-## func [Info](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L84>)
+## func [Info](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L94>)
 
 ```go
 func Info(msg string, args ...any)
@@ -121,7 +131,7 @@ func Info(msg string, args ...any)
 Info emits an info log
 
 <a name="Level"></a>
-## func [Level](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L88>)
+## func [Level](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L98>)
 
 ```go
 func Level() string
@@ -130,7 +140,7 @@ func Level() string
 
 
 <a name="RedirectStandard"></a>
-## func [RedirectStandard](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L93>)
+## func [RedirectStandard](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L103>)
 
 ```go
 func RedirectStandard(w io.Writer)
@@ -139,7 +149,7 @@ func RedirectStandard(w io.Writer)
 RedirectStandard changes the destination for normal \(non\-trace\) logs
 
 <a name="RedirectTrace"></a>
-## func [RedirectTrace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L104>)
+## func [RedirectTrace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L114>)
 
 ```go
 func RedirectTrace(w io.Writer)
@@ -148,7 +158,7 @@ func RedirectTrace(w io.Writer)
 RedirectTrace changes the destination for normal \(non\-trace\) logs
 
 <a name="SetFormat"></a>
-## func [SetFormat](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L115>)
+## func [SetFormat](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L125>)
 
 ```go
 func SetFormat(f Format)
@@ -157,7 +167,7 @@ func SetFormat(f Format)
 SetFormat changes the format of log entries
 
 <a name="SetLevel"></a>
-## func [SetLevel](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L129>)
+## func [SetLevel](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L139>)
 
 ```go
 func SetLevel(l slog.Level)
@@ -166,7 +176,7 @@ func SetLevel(l slog.Level)
 SetLevel sets the default level of logging
 
 <a name="SetTraceIds"></a>
-## func [SetTraceIds](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L134>)
+## func [SetTraceIds](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L144>)
 
 ```go
 func SetTraceIds(ids ...string)
@@ -175,7 +185,7 @@ func SetTraceIds(ids ...string)
 SetTraceIds registers identifiers for future tracing
 
 <a name="Trace"></a>
-## func [Trace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L141>)
+## func [Trace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L151>)
 
 ```go
 func Trace(msg string, args ...any)
@@ -184,7 +194,7 @@ func Trace(msg string, args ...any)
 Trace emits one JSON\-formatted log entry if trace level logging is enabled
 
 <a name="TraceID"></a>
-## func [TraceID](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L152>)
+## func [TraceID](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L162>)
 
 ```go
 func TraceID(id string, msg string, args ...any)
@@ -193,7 +203,7 @@ func TraceID(id string, msg string, args ...any)
 TraceID emits one JSON\-formatted log entry if tracing is enabled for the requested ID
 
 <a name="Warn"></a>
-## func [Warn](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L163>)
+## func [Warn](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L173>)
 
 ```go
 func Warn(msg string, args ...any)
@@ -202,7 +212,7 @@ func Warn(msg string, args ...any)
 Warn emits a warning log
 
 <a name="Format"></a>
-## type [Format](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L20>)
+## type [Format](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L30>)
 
 Format determines the format of each log entry
 
@@ -330,7 +340,7 @@ import "github.com/bruceesmith/echidna/observable"
 
 
 <a name="DeleteObservable"></a>
-## func [DeleteObservable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L36>)
+## func [DeleteObservable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L40>)
 
 ```go
 func DeleteObservable(topic string) (err error)
@@ -339,7 +349,7 @@ func DeleteObservable(topic string) (err error)
 DeleteObservable removes all references to an Observable
 
 <a name="DetachObserver"></a>
-## func [DetachObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L20>)
+## func [DetachObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L24>)
 
 ```go
 func DetachObserver(topic, name string) (err error)
@@ -348,7 +358,7 @@ func DetachObserver(topic, name string) (err error)
 DetachObserver removes an Observer from an Observable
 
 <a name="Notify"></a>
-## func [Notify](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L50>)
+## func [Notify](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L54>)
 
 ```go
 func Notify(topic string) (err error)
@@ -357,7 +367,7 @@ func Notify(topic string) (err error)
 Notify calls the Update function for every registered Observer, passing the Subject's registered Get function to each Observer. The Oberver will use this Get function to fetch the Observable's value
 
 <a name="RegisterObserver"></a>
-## func [RegisterObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L66>)
+## func [RegisterObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L70>)
 
 ```go
 func RegisterObserver(topic, name string, update func(func() interface{})) (err error)
@@ -366,7 +376,7 @@ func RegisterObserver(topic, name string, update func(func() interface{})) (err 
 RegisterObserver registers a new Observer. If the referenced Observable has not previously been registered, this function registers it in anticipation that a Subject in a separate goroutine will subsequently register
 
 <a name="RegisterSubject"></a>
-## func [RegisterSubject](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L87>)
+## func [RegisterSubject](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L91>)
 
 ```go
 func RegisterSubject(topic string, get func() interface{}) (err error)
@@ -375,7 +385,7 @@ func RegisterSubject(topic string, get func() interface{}) (err error)
 RegisterSubject registers a new Subject. If the referenced Observable is has previously been registered, this function simply saves its getter
 
 <a name="Observable"></a>
-## type [Observable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L9-L12>)
+## type [Observable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L13-L16>)
 
 Observable represents a value that is handled by an Observer pattern
 
@@ -391,6 +401,12 @@ type Observable struct {
 import "github.com/bruceesmith/echidna/program"
 ```
 
+Package program builds upon the Github packages knadh/koanf and urfave/cli/v3 to make it extremely simple to use the features of those two excellent packages in concert.
+
+Every program using program will expose a standard set of command\-line flags \(\-\-json, \-\-log, \-\-trace, \-\-verbose\) in addition to the standard flags provided by urfave/cli/v3 \(\-\-help and \-\-version\).
+
+If a configuration struct is provided to the Run\(\) function, then a further command=line flag \(\-\-config\) is added to provide the source\(s\) of values for fields in the struct.
+
 ## Index
 
 - [func Run\(ctx context.Context, command \*cli.Command, options ...Option\)](<#Run>)
@@ -400,7 +416,7 @@ import "github.com/bruceesmith/echidna/program"
 
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L271>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L285>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
@@ -409,7 +425,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option)
 Run is the primary external function of this library. It augments the cli.Command with default command\-line flags, hooks in handling for processing a configuration, runs the appropriate Action, calls the terminator to wait for goroutine cleanup
 
 <a name="Configuration"></a>
-## type [Configuration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L23-L25>)
+## type [Configuration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L37-L39>)
 
 Configuration is the interface for a configuration struct
 
@@ -420,7 +436,7 @@ type Configuration interface {
 ```
 
 <a name="Option"></a>
-## type [Option](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L35>)
+## type [Option](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L49>)
 
 Option is a functional parameter for Run\(\)
 
@@ -429,7 +445,7 @@ type Option func(params ...any) error
 ```
 
 <a name="WithConfiguration"></a>
-### func [WithConfiguration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L297>)
+### func [WithConfiguration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L311>)
 
 ```go
 func WithConfiguration(config Configuration) Option
@@ -442,6 +458,10 @@ WithConfiguration is an Option helper to define a configuration structure that w
 ```go
 import "github.com/bruceesmith/echidna/set"
 ```
+
+Package set is based on public code from John Arundel, goroutine safety added. It defines goroutine\-safe methods for manipulating a generic set data structure via the standard operations Add, Contains, Intersection, Members, String and Union
+
+URL: https://bitfieldconsulting.com/posts/generic-set
 
 ## Index
 
@@ -462,7 +482,7 @@ import "github.com/bruceesmith/echidna/set"
 
 
 <a name="Set"></a>
-## type [Set](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L17-L20>)
+## type [Set](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L20-L23>)
 
 Set is a generics implementation of the set data type
 
@@ -473,7 +493,7 @@ type Set[E comparable] struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L23>)
+### func [New](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L26>)
 
 ```go
 func New[E comparable](vals ...E) *Set[E]
@@ -482,7 +502,7 @@ func New[E comparable](vals ...E) *Set[E]
 New creates a new Set
 
 <a name="Set[E].Add"></a>
-### func \(\*Set\[E\]\) [Add](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L34>)
+### func \(\*Set\[E\]\) [Add](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L37>)
 
 ```go
 func (s *Set[E]) Add(vals ...E)
@@ -491,7 +511,7 @@ func (s *Set[E]) Add(vals ...E)
 Add puts a new value into a Set
 
 <a name="Set[E].Clear"></a>
-### func \(\*Set\[E\]\) [Clear](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L43>)
+### func \(\*Set\[E\]\) [Clear](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L46>)
 
 ```go
 func (s *Set[E]) Clear()
@@ -500,7 +520,7 @@ func (s *Set[E]) Clear()
 Clear removes all values from a Set
 
 <a name="Set[E].Contains"></a>
-### func \(\*Set\[E\]\) [Contains](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L50>)
+### func \(\*Set\[E\]\) [Contains](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L53>)
 
 ```go
 func (s *Set[E]) Contains(v E) bool
@@ -509,7 +529,7 @@ func (s *Set[E]) Contains(v E) bool
 Contains checks if a value is in the Set
 
 <a name="Set[E].Delete"></a>
-### func \(\*Set\[E\]\) [Delete](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L58>)
+### func \(\*Set\[E\]\) [Delete](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L61>)
 
 ```go
 func (s *Set[E]) Delete(vals ...E)
@@ -518,7 +538,7 @@ func (s *Set[E]) Delete(vals ...E)
 Delete remove values\(s\) from a Set
 
 <a name="Set[E].Difference"></a>
-### func \(\*Set\[E\]\) [Difference](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L67>)
+### func \(\*Set\[E\]\) [Difference](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L70>)
 
 ```go
 func (s *Set[E]) Difference(s2 *Set[E]) *Set[E]
@@ -527,7 +547,7 @@ func (s *Set[E]) Difference(s2 *Set[E]) *Set[E]
 Difference returns the set of values that are in s \(set A\) but not in s2 \(set B\) ... i.e. A \- B
 
 <a name="Set[E].Disjoint"></a>
-### func \(\*Set\[E\]\) [Disjoint](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L82>)
+### func \(\*Set\[E\]\) [Disjoint](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L85>)
 
 ```go
 func (s *Set[E]) Disjoint(s2 *Set[E]) bool
@@ -536,7 +556,7 @@ func (s *Set[E]) Disjoint(s2 *Set[E]) bool
 Disjoint returns true if the intersection of s with another set s2 is empty
 
 <a name="Set[E].Empty"></a>
-### func \(\*Set\[E\]\) [Empty](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L91>)
+### func \(\*Set\[E\]\) [Empty](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L94>)
 
 ```go
 func (s *Set[E]) Empty() bool
@@ -545,7 +565,7 @@ func (s *Set[E]) Empty() bool
 Empty returns true if the Set is empty
 
 <a name="Set[E].Intersection"></a>
-### func \(\*Set\[E\]\) [Intersection](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L98>)
+### func \(\*Set\[E\]\) [Intersection](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L101>)
 
 ```go
 func (s *Set[E]) Intersection(s2 *Set[E]) *Set[E]
@@ -554,7 +574,7 @@ func (s *Set[E]) Intersection(s2 *Set[E]) *Set[E]
 Intersection returns the logical intersection of 2 Sets
 
 <a name="Set[E].Members"></a>
-### func \(\*Set\[E\]\) [Members](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L113>)
+### func \(\*Set\[E\]\) [Members](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L116>)
 
 ```go
 func (s *Set[E]) Members() []E
@@ -563,7 +583,7 @@ func (s *Set[E]) Members() []E
 Members returns a slice of the values in a Set
 
 <a name="Set[E].Size"></a>
-### func \(\*Set\[E\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L124>)
+### func \(\*Set\[E\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L127>)
 
 ```go
 func (s *Set[E]) Size() int
@@ -572,7 +592,7 @@ func (s *Set[E]) Size() int
 Size returns the number of values in a Set
 
 <a name="Set[E].String"></a>
-### func \(\*Set\[E\]\) [String](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L131>)
+### func \(\*Set\[E\]\) [String](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L134>)
 
 ```go
 func (s *Set[E]) String() string
@@ -581,7 +601,7 @@ func (s *Set[E]) String() string
 String returns a string representation of the Set members
 
 <a name="Set[E].Union"></a>
-### func \(\*Set\[E\]\) [Union](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L138>)
+### func \(\*Set\[E\]\) [Union](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L141>)
 
 ```go
 func (s *Set[E]) Union(s2 *Set[E]) *Set[E]
@@ -595,6 +615,8 @@ Union returns the logical union of 2 Sets
 import "github.com/bruceesmith/echidna/stack"
 ```
 
+Package stack defines goroutine\-safe methods for manipulating a generic stack data structure via the standard operations IsEmpty, Peek, Pop, Pushand Size.
+
 ## Index
 
 - [type Stack](<#Stack>)
@@ -606,7 +628,7 @@ import "github.com/bruceesmith/echidna/stack"
 
 
 <a name="Stack"></a>
-## type [Stack](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L13-L17>)
+## type [Stack](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L21-L25>)
 
 Stack is a Go stack implementation using a linked list It is go\-routine safe
 
@@ -617,7 +639,7 @@ type Stack[T any] struct {
 ```
 
 <a name="Stack[T].IsEmpty"></a>
-### func \(\*Stack\[T\]\) [IsEmpty](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L20>)
+### func \(\*Stack\[T\]\) [IsEmpty](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L28>)
 
 ```go
 func (s *Stack[T]) IsEmpty() bool
@@ -626,7 +648,7 @@ func (s *Stack[T]) IsEmpty() bool
 IsEmpty returns true if the stack has no elements
 
 <a name="Stack[T].Peek"></a>
-### func \(\*Stack\[T\]\) [Peek](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L28>)
+### func \(\*Stack\[T\]\) [Peek](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L36>)
 
 ```go
 func (s *Stack[T]) Peek() (value T, ok bool)
@@ -635,7 +657,7 @@ func (s *Stack[T]) Peek() (value T, ok bool)
 Peek returns a copy of the top element off the stack
 
 <a name="Stack[T].Pop"></a>
-### func \(\*Stack\[T\]\) [Pop](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L42>)
+### func \(\*Stack\[T\]\) [Pop](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L50>)
 
 ```go
 func (s *Stack[T]) Pop() (value T, ok bool)
@@ -644,7 +666,7 @@ func (s *Stack[T]) Pop() (value T, ok bool)
 Pop removes the top element and returns it
 
 <a name="Stack[T].Push"></a>
-### func \(\*Stack\[T\]\) [Push](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L59>)
+### func \(\*Stack\[T\]\) [Push](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L67>)
 
 ```go
 func (s *Stack[T]) Push(v T)
@@ -653,7 +675,7 @@ func (s *Stack[T]) Push(v T)
 Push adds an element to the top of the stack
 
 <a name="Stack[T].Size"></a>
-### func \(\*Stack\[T\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L73>)
+### func \(\*Stack\[T\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L81>)
 
 ```go
 func (s *Stack[T]) Size() int
@@ -666,6 +688,8 @@ Size returns the number of elements on the stack
 ```go
 import "github.com/bruceesmith/echidna/terminator"
 ```
+
+Package terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup.There is a default Terminator accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods
 
 ## Index
 
@@ -688,7 +712,7 @@ import "github.com/bruceesmith/echidna/terminator"
 
 
 <a name="Add"></a>
-## func [Add](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L43>)
+## func [Add](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L48>)
 
 ```go
 func Add(delta int)
@@ -697,7 +721,7 @@ func Add(delta int)
 Add adds delta to the count of goroutines in the group
 
 <a name="Done"></a>
-## func [Done](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L51>)
+## func [Done](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L56>)
 
 ```go
 func Done()
@@ -706,7 +730,7 @@ func Done()
 Done decrements the count of goroutines in the group by one
 
 <a name="SetDefault"></a>
-## func [SetDefault](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L61>)
+## func [SetDefault](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L66>)
 
 ```go
 func SetDefault(t *Terminator)
@@ -715,7 +739,7 @@ func SetDefault(t *Terminator)
 SetDefault sets the default Terminator
 
 <a name="ShutDown"></a>
-## func [ShutDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L56>)
+## func [ShutDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L61>)
 
 ```go
 func ShutDown() <-chan struct{}
@@ -724,7 +748,7 @@ func ShutDown() <-chan struct{}
 ShutDown allows code to wait for a shut down signal
 
 <a name="ShuttingDown"></a>
-## func [ShuttingDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L66>)
+## func [ShuttingDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L71>)
 
 ```go
 func ShuttingDown() bool
@@ -733,7 +757,7 @@ func ShuttingDown() bool
 ShuttingDown returns true if shutdown is in progress
 
 <a name="Stop"></a>
-## func [Stop](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L71>)
+## func [Stop](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L76>)
 
 ```go
 func Stop()
@@ -742,7 +766,7 @@ func Stop()
 Stop signals that all goroutines in the group should safely exit
 
 <a name="Wait"></a>
-## func [Wait](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L77>)
+## func [Wait](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L82>)
 
 ```go
 func Wait()
@@ -751,7 +775,7 @@ func Wait()
 Wait blocks until every goroutines in the group has called Done\(\)
 
 <a name="Terminator"></a>
-## type [Terminator](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L16-L20>)
+## type [Terminator](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L21-L25>)
 
 Terminator manages groups of goroutines
 
@@ -762,7 +786,7 @@ type Terminator struct {
 ```
 
 <a name="Default"></a>
-### func [Default](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L48>)
+### func [Default](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L53>)
 
 ```go
 func Default() *Terminator
@@ -771,7 +795,7 @@ func Default() *Terminator
 Default returns the default [Terminator](<#Terminator>).
 
 <a name="New"></a>
-### func [New](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L82>)
+### func [New](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L87>)
 
 ```go
 func New() *Terminator
@@ -780,7 +804,7 @@ func New() *Terminator
 New returns a Terminator
 
 <a name="Terminator.Add"></a>
-### func \(\*Terminator\) [Add](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L89>)
+### func \(\*Terminator\) [Add](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L94>)
 
 ```go
 func (t *Terminator) Add(delta int)
@@ -789,7 +813,7 @@ func (t *Terminator) Add(delta int)
 Add adds delta to the count of goroutines in the group
 
 <a name="Terminator.Done"></a>
-### func \(\*Terminator\) [Done](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L94>)
+### func \(\*Terminator\) [Done](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L99>)
 
 ```go
 func (t *Terminator) Done()
@@ -798,7 +822,7 @@ func (t *Terminator) Done()
 Done decrements the count of goroutines in the group by one
 
 <a name="Terminator.ShutDown"></a>
-### func \(\*Terminator\) [ShutDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L99>)
+### func \(\*Terminator\) [ShutDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L104>)
 
 ```go
 func (t *Terminator) ShutDown() <-chan struct{}
@@ -807,7 +831,7 @@ func (t *Terminator) ShutDown() <-chan struct{}
 ShutDown allows code to wait for a shut down signal
 
 <a name="Terminator.ShuttingDown"></a>
-### func \(\*Terminator\) [ShuttingDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L104>)
+### func \(\*Terminator\) [ShuttingDown](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L109>)
 
 ```go
 func (t *Terminator) ShuttingDown() bool
@@ -816,7 +840,7 @@ func (t *Terminator) ShuttingDown() bool
 ShuttingDown returns true if shutdown is in Default\(\).progress
 
 <a name="Terminator.Stop"></a>
-### func \(\*Terminator\) [Stop](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L109>)
+### func \(\*Terminator\) [Stop](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L114>)
 
 ```go
 func (t *Terminator) Stop()
@@ -825,7 +849,7 @@ func (t *Terminator) Stop()
 Stop signals that all goroutines in the group should safely exit
 
 <a name="Terminator.Wait"></a>
-### func \(\*Terminator\) [Wait](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L115>)
+### func \(\*Terminator\) [Wait](<https://github.com/bruceesmith/echidna/blob/main/terminator/terminator.go#L120>)
 
 ```go
 func (t *Terminator) Wait()

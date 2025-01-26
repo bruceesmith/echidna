@@ -3,20 +3,24 @@
 // License that can be found in the LICENSE file.
 
 /*
-Package echidna provides helpers for building robust Go daemons and CLIs
+Package echidna provides sub-packages for building robust Go daemons and CLIs
 
-Type Terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup. There
-is a default Terminator accessible through top level functions (Add, Done, Wait and so on) that call the corresponding
-Terminator methods.
+  - logger supports logging and tracing based on the standard library package slog.
 
-Another group of functions support logging and tracing. Debug, Error, Info and Warn operate like their package slog equivalents, with
-the level of logging modifiable using SetLevel. A custom logging level (LevelTrace) can be supplied to SetLevel to enable tracing. Tracing can be
-unconditional when calling Trace, or only enabled for pre-defined identifiers when calling TraceID. Identifiers for TraceID are registered
-by calling SetTraceIDs. By default, all debug, error, info and warn messages go to Stdout, and traces go to Stderr; these destinations can
-be changed by calling RedirectNormal and RedirectTrace respectively.
+  - program builds upon the Github packages knadh/koanf and urfave/cli/v3 to make it extremely simple to use the
+    features of those two excellent packages in concert.
 
-Type Set defines methods for manipulating a generic set data structure via the expected operations Add, Contains, Intersection, Members, String
-and Union.
+  - set defines goroutine-safe methods for manipulating a generic set data structure via the standard operations Add, Contains,
+    Intersection, Members, String and Union.
+
+  - stack defines goroutine-safe methods for manipulating a generic stack data structure via the standard operations IsEmpty,
+    Peek, Pop, Pushand Size.
+
+  - terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup.
+    There is a default Terminator accessible through top level functions (Add, Done, Wait and so on) that call the
+    corresponding Terminator methods.
+
+Refer to the documentation for the individual packages for more details.
 */
 package echidna
 

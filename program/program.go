@@ -2,6 +2,16 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
+/*
+Package program builds upon the Github packages knadh/koanf and urfave/cli/v3 to make it extremely simple to use the
+features of those two excellent packages in concert.
+
+Every program using program will expose a standard set of command-line flags (--json, --log, --trace, --verbose) in
+addition to the standard flags provided by urfave/cli/v3 (--help and --version).
+
+If a configuration struct is provided to the Run() function, then a further command=line flag (--config) is added to
+provide the source(s) of values for fields in the struct.
+*/
 package program
 
 import (

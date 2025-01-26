@@ -2,10 +2,13 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
-// Based on public code from John Arundel, goroutine safety added
-//
-// URL: https://bitfieldconsulting.com/posts/generic-set
+/*
+Package set is based on public code from John Arundel, goroutine safety added. It defines goroutine-safe
+methods for manipulating a generic set data structure via the standard operations Add, Contains,
+Intersection, Members, String and Union
 
+URL: https://bitfieldconsulting.com/posts/generic-set
+*/
 package set
 
 import (

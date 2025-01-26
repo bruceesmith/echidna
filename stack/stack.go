@@ -2,6 +2,10 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
+/*
+Package stack defines goroutine-safe methods for manipulating a generic stack data structure via the standard
+operations IsEmpty, Peek, Pop, Pushand Size.
+*/
 package stack
 
 import "sync"

@@ -2,6 +2,16 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
+/*
+Package logger supports logging and tracing based on the standard library package slog.
+
+Debug, Error, Info and Warn operate like their package slog equivalents, with the level of logging modifiable
+using SetLevel. A custom logging level (LevelTrace) can be supplied to SetLevel to enable tracing. Tracing can
+be unconditional when calling Trace, or only enabled for pre-defined identifiers when calling TraceID. Identifiers
+for TraceID are registered by calling SetTraceIDs. By default, all debug, error, info and warn messages go to
+Stdout, and traces go to Stderr; these destinations can be changed by calling RedirectNormal and RedirectTrace
+respectively
+*/
 package logger
 
 import (
