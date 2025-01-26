@@ -8,7 +8,7 @@
 * [1. Overview](#overview)
 * [2. logger](#logger)
 * [3. observable](#observable)
-* [4. program](#program)
+* [4. program](#programme)
 * [5. set](#set)
 * [6. stack](#stack)
 * [7. terminator](#terminator)
@@ -385,7 +385,7 @@ type Observable struct {
 }
 ```
 
-# <a name="program">4. program</a>
+# <a name="programmme">4. program</a>
 
 ```go
 import "github.com/bruceesmith/echidna/program"
