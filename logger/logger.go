@@ -96,7 +96,7 @@ func Info(msg string, args ...any) {
 }
 
 func Level() string {
-	return level.String()
+	return level.Level().String()
 }
 
 // RedirectStandard changes the destination for normal (non-trace) logs
