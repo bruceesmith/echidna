@@ -16,10 +16,15 @@ package program
 
 import (
 	"context"
+	"log/slog"
 	"reflect"
 	"testing"
 
+	"github.com/bruceesmith/echidna/logger"
 	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/file"
 	"github.com/urfave/cli/v3"
 )
 
@@ -159,26 +164,6 @@ func Test_before(t *testing.T) {
 	}
 }
 
-func Test_logging(t *testing.T) {
-	type args struct {
-		command *cli.Command
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := logging(tt.args.command); (err != nil) != tt.wantErr {
-				t.Errorf("logging() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func Test_configure(t *testing.T) {
 	type args struct {
 		config        Configuration
@@ -204,23 +189,233 @@ func Test_flag(t *testing.T) {
 	type args struct {
 		cmd  *cli.Command
 		name string
+		line []string
 	}
 	tests := []struct {
 		name      string
 		args      args
-		wantValue string
+		wantValue any
 		wantFound bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "set-and-found",
+			args: args{
+				cmd: &cli.Command{
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Name: "test",
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "someflag",
+							Value: "fred",
+						},
+					},
+				},
+				name: "someflag",
+				line: []string{"test", "-someflag", "bill"},
+			},
+			wantValue: "bill",
+			wantFound: true,
+		},
+		{
+			name: "found-but-not-set",
+			args: args{
+				cmd: &cli.Command{
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Name: "test",
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "someflag",
+							Value: "fred",
+						},
+					},
+				},
+				name: "someflag",
+				line: []string{"test"},
+			},
+			wantValue: "fred",
+			wantFound: true,
+		},
+		{
+			name: "custom-set-and-found",
+			args: args{
+				cmd: &cli.Command{
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Name: "test",
+					Flags: []cli.Flag{
+						&logger.LogLevelFlag{
+							Name:  "log",
+							Value: logger.LogLevel(slog.LevelWarn),
+						},
+					},
+				},
+				name: "log",
+				line: []string{"test", "-log", "error"},
+			},
+			wantValue: logger.LogLevel(slog.LevelError),
+			// wantValue: 77,
+			wantFound: true,
+		},
+		{
+			name: "not-found",
+			args: args{
+				cmd: &cli.Command{
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Name: "test",
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:  "someotherflag",
+							Value: "fred",
+						},
+					},
+				},
+				name: "someflag",
+				line: []string{"test", "-someotherflag", "harry"},
+			},
+			wantValue: nil,
+			wantFound: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.args.cmd.Action != nil {
+				tt.args.cmd.Run(context.Background(), tt.args.line)
+			}
 			gotValue, gotFound := flag(tt.args.cmd, tt.args.name)
 			if gotValue != tt.wantValue {
 				t.Errorf("flag() gotValue = %v, want %v", gotValue, tt.wantValue)
 			}
 			if gotFound != tt.wantFound {
 				t.Errorf("flag() gotFound = %v, want %v", gotFound, tt.wantFound)
+			}
+		})
+	}
+}
+
+func Test_loaders(t *testing.T) {
+	type args struct {
+		paths []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []configLoader
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				paths: []string{
+					"one.json",
+					"two.yml",
+				},
+			},
+			want: []configLoader{
+				{
+					Provider: file.Provider("one.json"),
+					Parser:   json.Parser(),
+					Options:  []koanf.Option{},
+				},
+				{
+					Provider: file.Provider("two.yml"),
+					Parser:   yaml.Parser(),
+					Options:  []koanf.Option{},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "error",
+			args: args{
+				paths: []string{
+					"one.unknown",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := loaders(tt.args.paths)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("loaders() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if len(got) != len(tt.want) {
+				t.Errorf("loaders() = got %v, want %v", len(got), len(tt.want))
+			}
+			for i, loader := range got {
+				if loader.Provider == nil {
+					t.Errorf("loaders() = got nil Provider at index %v", i)
+				}
+				if loader.Parser != tt.want[i].Parser {
+					t.Errorf("loaders() = got Parser %v, want Parser %v at index %v", loader.Parser, tt.want[i].Parser, i)
+				}
+			}
+		})
+	}
+}
+
+func Test_logging(t *testing.T) {
+	type args struct {
+		command *cli.Command
+		line    []string
+	}
+	var (
+		// clArgs []string
+		tester = func(_ context.Context, _ *cli.Command) error {
+			return nil
+		}
+	)
+	tests := []struct {
+		name      string
+		args      args
+		wantErr   bool
+		wantLevel string
+	}{
+		{
+			name: "ok",
+			args: args{
+				command: &cli.Command{
+					Action: tester,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "json",
+						},
+						&logger.LogLevelFlag{
+							Name: "log",
+						},
+						&cli.StringSliceFlag{
+							Name: "trace",
+						},
+					},
+					Name: "test",
+				},
+				line: []string{"test", "-json", "-log", "warn", "-trace", "area1"},
+			},
+			wantErr:   false,
+			wantLevel: "WARN",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// clArgs = tt.args.line
+			tt.args.command.Run(context.Background(), tt.args.line)
+			log, _ := flag(tt.args.command, "log")
+			t.Logf("json %v log %v trace %v", tt.args.command.Bool("json"), log, tt.args.command.StringSlice("trace"))
+			if err := logging(tt.args.command); (err != nil) != tt.wantErr {
+				t.Errorf("logging() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if logger.Level() != tt.wantLevel {
+				t.Errorf("logging() got level %v want level %v", logger.Level(), tt.wantLevel)
 			}
 		})
 	}
@@ -242,32 +437,6 @@ func Test_readConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := readConfig(tt.args.k, tt.args.sources...); (err != nil) != tt.wantErr {
 				t.Errorf("readConfig() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func Test_loaders(t *testing.T) {
-	type args struct {
-		paths []string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    []configLoader
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := loaders(tt.args.paths)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("loaders() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("loaders() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -309,21 +478,33 @@ func TestRun(t *testing.T) {
 	}
 }
 
+type config struct {
+	I int
+}
+
+func (c *config) Validate() error { return nil }
+
 func TestWithConfiguration(t *testing.T) {
+	var cfg config
+
 	type args struct {
 		config Configuration
 	}
 	tests := []struct {
 		name string
 		args args
-		want Option
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			args: args{
+				config: &cfg,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := WithConfiguration(tt.args.config); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("WithConfiguration() = %v, want %v", got, tt.want)
+			if got := WithConfiguration(tt.args.config); got == nil {
+				t.Errorf("WithConfiguration() = nil")
 			}
 		})
 	}
