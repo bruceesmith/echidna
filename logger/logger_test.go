@@ -208,12 +208,12 @@ func TestLevel(t *testing.T) {
 		{
 			name: "info",
 			lev:  slog.LevelInfo,
-			want: "LevelVar(INFO)",
+			want: "INFO",
 		},
 		{
 			name: "trace",
 			lev:  LevelTrace,
-			want: "LevelVar(DEBUG-6)",
+			want: "DEBUG-6",
 		},
 	}
 	for _, tt := range tests {
