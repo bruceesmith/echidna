@@ -129,29 +129,6 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 	return ctx, err
 }
 
-// logging establishes logging according to any relevant command-line flags
-func logging(command *cli.Command) error {
-	// Change the logging format if JSON was requested
-	if command.Bool("json") {
-		logger.SetFormat(logger.JSON)
-	}
-	// Set the logging level
-	str, set := flag(command, "log")
-	if set {
-		var ll logger.LogLevel
-		if err := ll.Set(str); err != nil {
-			return fmt.Errorf("failed to set logging level: [%w]", err)
-		}
-		logger.SetLevel(slog.Level(ll))
-	}
-	// Register areas to be traced, if any
-	traces := command.StringSlice("trace")
-	if len(traces) != 0 {
-		logger.SetTraceIds(traces...)
-	}
-	return nil
-}
-
 // configure reads the configuration from the nominated sources, unmarshals it into
 // the provided struct, and finally invokes the configuration validator
 func configure(config Configuration, configLoaders []configLoader) (err error) {
@@ -174,12 +151,14 @@ func configure(config Configuration, configLoaders []configLoader) (err error) {
 	return
 }
 
-// flag returns the string value of a command-line flag
-// found is true and value is non-empty if the flag has been set
-// If a flag is one of the standard cli-defined types (e.g. BoolFlag, StringFlag, and so on)
+// flag returns the string value of a command-line flag.
+//
+// found is true and value is non-empty if the flag has been set.
+//
+// If a flag is one of the standard cli-defined FlagBase types (e.g. BoolFlag, StringFlag, and so on)
 // then using native methods (cmd.Bool(), cmd.String(), and so on) is preferred to use of flag.
-// flag is useful for custom FlagSets
-func flag(cmd *cli.Command, name string) (value string, found bool) {
+// Thus flag is intended to support custom FlagBase types
+func flag(cmd *cli.Command, name string) (value any, found bool) {
 	has := func(names []string, name string) bool {
 		for _, n := range names {
 			if n == name {
@@ -188,30 +167,28 @@ func flag(cmd *cli.Command, name string) (value string, found bool) {
 		}
 		return false
 	}
+
+	if has(cmd.FlagNames(), name) {
+		// Flag is both defined and provided on the command line
+		return cmd.Value(name), true
+
+	}
 	for _, flag := range cmd.Flags {
 		if has(flag.Names(), name) {
-			if flag.IsSet() {
-				return flag.String(), true
+			// Flag is defined but not provided on the command line, so return its default
+			type getter interface {
+				cli.Flag
+				GetValue() string
 			}
+			fb, ok := flag.(getter)
+			if ok {
+				return fb.GetValue(), true
+			}
+			// Flag is defined but is not a FlagBase - it can't be handled in this function
+			break
 		}
 	}
-	return
-}
-
-// readConfig reads the configuration from the nominated sources
-func readConfig(k *koanf.Koanf, sources ...configLoader) error {
-	var err, result error
-	for _, source := range sources {
-		err = k.Load(source.Provider, source.Parser, source.Options...)
-		if err != nil {
-			if result != nil {
-				result = fmt.Errorf("%s; %s", result.Error(), err.Error())
-			} else {
-				result = err
-			}
-		}
-	}
-	return result
+	return value, false
 }
 
 // loaders constructs a configuration loader for each nominated source
@@ -233,6 +210,30 @@ func loaders(paths []string) ([]configLoader, error) {
 		loaders[i] = loader
 	}
 	return loaders, nil
+}
+
+// logging establishes logging according to any relevant command-line flags
+func logging(command *cli.Command) error {
+	// Change the logging format if JSON was requested
+	if command.Bool("json") {
+		logger.SetFormat(logger.JSON)
+	}
+	// Set the logging level
+	value, found := flag(command, "log")
+	if found {
+		ll, ok := value.(logger.LogLevel)
+		if ok {
+			logger.SetLevel(slog.Level(ll))
+		} else {
+			return fmt.Errorf("cannot extract a LogLevel from %v", value)
+		}
+	}
+	// Register areas to be traced, if any
+	traces := command.StringSlice("trace")
+	if len(traces) != 0 {
+		logger.SetTraceIds(traces...)
+	}
+	return nil
 }
 
 // printVersion is a custom function to print version information
@@ -276,6 +277,22 @@ func printVersion(cmd *cli.Command) {
 		}
 	}
 
+}
+
+// readConfig reads the configuration from the nominated sources
+func readConfig(k *koanf.Koanf, sources ...configLoader) error {
+	var err, result error
+	for _, source := range sources {
+		err = k.Load(source.Provider, source.Parser, source.Options...)
+		if err != nil {
+			if result != nil {
+				result = fmt.Errorf("%s; %s", result.Error(), err.Error())
+			} else {
+				result = err
+			}
+		}
+	}
+	return result
 }
 
 // Run is the primary external function of this library. It augments the
