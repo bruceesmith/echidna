@@ -73,7 +73,7 @@ type logLevelValue struct {
 	destination *LogLevel
 }
 
-// Create returns a value which implements the golang flag.Value interface
+// Create returns a value which implements the golang flag.Value and flag.Getter interfaces
 func (l logLevelValue) Create(val LogLevel, p *LogLevel, _ cli.NoConfig) cli.Value {
 	*p = val
 	return &logLevelValue{destination: p}
