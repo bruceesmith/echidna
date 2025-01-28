@@ -92,11 +92,11 @@ push: confirm audit no-dirty
 	git push
 
 ## prod: deploy the application to production
-.PHONY: prod
+.PHONY: prod 
 prod: audit no-dirty
 	GOOS=linux GOARCH=amd64 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o ${HOME}/go/bin/${binary_name} ${main_package_path}
 	upx -5 ~/go/bin/${binary_name}
 	# Include additional deployment steps here...
 bruce: audit
 	GOOS=linux GOARCH=amd64 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o ${HOME}/go/bin/${binary_name} ${main_package_path}
-	upx -5 ~/go/bin/${binary_name}
+	# upx -5 ~/go/bin/${binary_name} # upx not for a library
