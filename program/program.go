@@ -63,7 +63,7 @@ func (fs flagset) Delete(name string) {
 // InUse returns a slice of the flags that remain in the standard
 // flag set after all Options that remove a flag have been executed
 func (fs flagset) InUse() []cli.Flag {
-	val := make([]cli.Flag, fs.inuse.Size(), fs.inuse.Size())
+	val := make([]cli.Flag, fs.inuse.Size())
 	for k, v := range fs.inuse.Members() {
 		val[k] = fs.all[v]
 	}
@@ -164,6 +164,9 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 			// Build a list of configuration source providers
 			var configloaders []configLoader
 			configloaders, err = loaders(configs)
+			if err != nil {
+				return ctx, fmt.Errorf("config load error: [%w]", err)
+			}
 			// Read, parse, store and validate the configuration
 			err = configure(configuration, configloaders)
 		}
@@ -197,9 +200,7 @@ func configure(config Configuration, configLoaders []configLoader) (err error) {
 func expand[T any](slice []T, size int) (v []T) {
 	if cap(slice) < len(slice)+size {
 		v = make([]T, len(slice), len(slice)+size)
-		for i, flag := range slice {
-			v[i] = flag
-		}
+		copy(v, slice)
 		return v
 	}
 	return slice
@@ -247,7 +248,7 @@ func flag(cmd *cli.Command, name string) (value any, found bool) {
 
 // loaders constructs a configuration loader for each nominated source
 func loaders(paths []string) ([]configLoader, error) {
-	loaders := make([]configLoader, len(paths), len(paths))
+	loaders := make([]configLoader, len(paths))
 	for i, path := range paths {
 		loader := configLoader{
 			Provider: file.Provider(path),
@@ -276,12 +277,11 @@ func logging(command *cli.Command) error {
 	value, found := flag(command, "log")
 	if found {
 		var level logger.LogLevel
-		switch value.(type) {
+		switch lev := value.(type) {
 		case string:
-			lls, _ := value.(string)
-			level.Set(lls)
+			level.Set(lev)
 		case logger.LogLevel:
-			level, _ = value.(logger.LogLevel)
+			level = lev
 		default:
 			return fmt.Errorf("cannot extract a LogLevel from %v type %v", value, reflect.TypeOf(value))
 		}
@@ -407,7 +407,7 @@ func WithConfiguration(config Configuration) Option {
 	}
 }
 
-func NoJson() Option {
+func NoJSON() Option {
 	return func(_ ...any) error {
 		flags.Delete("json")
 		return nil

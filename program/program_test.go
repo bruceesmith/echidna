@@ -499,8 +499,7 @@ func Test_expand(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var gotV []int
-			gotV = expand(tt.args.slice, tt.args.size)
+			gotV := expand(tt.args.slice, tt.args.size)
 			if len(gotV) != tt.wantLen || cap(gotV) != tt.wantCap {
 				t.Errorf("expand() = %v, want len/cap %v/%v got len/cap %v/%v", gotV, tt.wantLen, tt.wantCap, len(gotV), cap(gotV))
 			}
@@ -1069,7 +1068,7 @@ func TestWithConfiguration(t *testing.T) {
 		})
 	}
 }
-func TestNoJson(t *testing.T) {
+func TestNoJSON(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
@@ -1080,7 +1079,7 @@ func TestNoJson(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var got Option
-			if got = NoJson(); got == nil {
+			if got = NoJSON(); got == nil {
 				t.Errorf("NoJson() returned nil ")
 			}
 			before := flags
