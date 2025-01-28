@@ -15,18 +15,190 @@ provide the source(s) of values for fields in the struct.
 package program
 
 import (
+	"bytes"
 	"context"
 	"log/slog"
 	"reflect"
 	"testing"
+	"unsafe"
 
 	"github.com/bruceesmith/echidna/logger"
+	"github.com/bruceesmith/echidna/set"
 	"github.com/knadh/koanf"
-	"github.com/knadh/koanf/parsers/json"
+	kjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/urfave/cli/v3"
 )
+
+func Test_flagset_Delete(t *testing.T) {
+	type fields struct {
+		all   map[string]cli.Flag
+		inuse *set.Set[string]
+	}
+	type args struct {
+		name string
+	}
+	one := cli.BoolFlag{Name: "one"}
+	two := cli.BoolFlag{Name: "two"}
+	three := cli.IntFlag{Name: "three"}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+	}{
+		{
+			name: "ok",
+			fields: fields{
+				all: map[string]cli.Flag{
+					"one":   &one,
+					"two":   &two,
+					"three": &three,
+				},
+				inuse: set.New("one", "two", "three"),
+			},
+			args: args{
+				name: "three",
+			},
+		},
+		{
+			name: "non-existent",
+			fields: fields{
+				all: map[string]cli.Flag{
+					"one":   &one,
+					"two":   &two,
+					"three": &three,
+				},
+				inuse: set.New("one", "two", "three"),
+			},
+			args: args{
+				name: "four",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := flagset{
+				all:   tt.fields.all,
+				inuse: tt.fields.inuse,
+			}
+			fs.Delete(tt.args.name)
+			if found := tt.fields.inuse.Contains(tt.args.name); found {
+				t.Errorf("flagset.Delete() failed to remove %s", tt.args.name)
+			}
+		})
+	}
+}
+
+func Test_flagset_InUse(t *testing.T) {
+	type fields struct {
+		all   map[string]cli.Flag
+		inuse *set.Set[string]
+	}
+	one := cli.BoolFlag{Name: "one"}
+	two := cli.BoolFlag{Name: "two"}
+	three := cli.IntFlag{Name: "three"}
+	four := cli.StringFlag{Name: "four"}
+	tests := []struct {
+		name   string
+		fields fields
+		want   []cli.Flag
+	}{
+		{
+			name: "ok",
+			fields: fields{
+				all: map[string]cli.Flag{
+					"one":   &one,
+					"two":   &two,
+					"three": &three,
+				},
+				inuse: set.New("one", "three"),
+			},
+			want: []cli.Flag{
+				&one,
+				&three,
+			},
+		},
+		{
+			name: "non-existant",
+			fields: fields{
+				all: map[string]cli.Flag{
+					"one":   &one,
+					"two":   &two,
+					"three": &three,
+				},
+				inuse: set.New("one", "three"),
+			},
+			want: []cli.Flag{
+				&one,
+				&four,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := flagset{
+				all:   tt.fields.all,
+				inuse: tt.fields.inuse,
+			}
+			got := fs.InUse()
+			if len(got) != len(tt.want) {
+				t.Errorf("flagset.InUse() = wanted %d flag names, got %d", len(tt.want), len(got))
+			}
+			for _, f := range fs.inuse.Members() {
+				expected := false
+				name := ""
+			loop:
+				for _, used := range got {
+					for _, name := range used.Names() {
+						if f == name {
+							expected = true
+							break loop
+						}
+					}
+				}
+				if !expected {
+					t.Errorf("flagset.InUse says %s is still in use", name)
+				}
+			}
+		})
+	}
+}
+
+func Test_flagset_Len(t *testing.T) {
+	type fields struct {
+		all   map[string]cli.Flag
+		inuse *set.Set[string]
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   int
+	}{
+		{
+			name: "ok",
+			fields: fields{
+				all: map[string]cli.Flag{
+					"one": &cli.BoolFlag{},
+					"two": &cli.BoolFlag{},
+				},
+				inuse: set.New("one", "two"),
+			},
+			want: 2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := flagset{
+				all:   tt.fields.all,
+				inuse: tt.fields.inuse,
+			}
+			if got := fs.Len(); got != tt.want {
+				t.Errorf("flagset.Len() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
 func Test_addCommand(t *testing.T) {
 	type args struct {
@@ -185,6 +357,55 @@ func Test_configure(t *testing.T) {
 	}
 }
 
+func Test_expand(t *testing.T) {
+	type args struct {
+		slice []int
+		size  int
+	}
+	ar := [4]int{1, 2, 3, 4}
+	sl := ar[0:2]
+	tests := []struct {
+		name                 string
+		args                 args
+		wantCap              int
+		wantLen              int
+		wantDifferentAddress bool
+	}{
+		{
+			name: "will-expand",
+			args: args{
+				slice: []int{9, 8},
+				size:  2,
+			},
+			wantCap:              4,
+			wantLen:              2,
+			wantDifferentAddress: true,
+		},
+		{
+			name: "will-not-expand",
+			args: args{
+				slice: sl,
+				size:  1,
+			},
+			wantCap:              4,
+			wantLen:              2,
+			wantDifferentAddress: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var gotV []int
+			gotV = expand(tt.args.slice, tt.args.size)
+			if len(gotV) != tt.wantLen || cap(gotV) != tt.wantCap {
+				t.Errorf("expand() = %v, want len/cap %v/%v got len/cap %v/%v", gotV, tt.wantLen, tt.wantCap, len(gotV), cap(gotV))
+			}
+			if (unsafe.SliceData(tt.args.slice) != unsafe.SliceData(gotV)) != tt.wantDifferentAddress {
+				t.Errorf("expand() original %v expanded %v", unsafe.SliceData(tt.args.slice), unsafe.SliceData(gotV))
+			}
+		})
+	}
+}
+
 func Test_flag(t *testing.T) {
 	type args struct {
 		cmd  *cli.Command
@@ -320,7 +541,7 @@ func Test_loaders(t *testing.T) {
 			want: []configLoader{
 				{
 					Provider: file.Provider("one.json"),
-					Parser:   json.Parser(),
+					Parser:   kjson.Parser(),
 					Options:  []koanf.Option{},
 				},
 				{
@@ -370,7 +591,6 @@ func Test_logging(t *testing.T) {
 		line    []string
 	}
 	var (
-		// clArgs []string
 		tester = func(_ context.Context, _ *cli.Command) error {
 			return nil
 		}
@@ -407,10 +627,7 @@ func Test_logging(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// clArgs = tt.args.line
 			tt.args.command.Run(context.Background(), tt.args.line)
-			log, _ := flag(tt.args.command, "log")
-			t.Logf("json %v log %v trace %v", tt.args.command.Bool("json"), log, tt.args.command.StringSlice("trace"))
 			if err := logging(tt.args.command); (err != nil) != tt.wantErr {
 				t.Errorf("logging() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -447,14 +664,89 @@ func Test_printVersion(t *testing.T) {
 		cmd *cli.Command
 	}
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		jason   bool
+		verbose bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "simple",
+			args: args{
+				cmd: &cli.Command{
+					Name:        "test",
+					Description: "a test command",
+					Action: func(cts context.Context, cmd *cli.Command) error {
+						return nil
+					},
+					Version: "1",
+				},
+			},
+			jason:   false,
+			verbose: false,
+		},
+		{
+			name: "json",
+			args: args{
+				cmd: &cli.Command{
+					Name:        "test",
+					Description: "a test command",
+					Action: func(cts context.Context, cmd *cli.Command) error {
+						return nil
+					},
+					Version: "1",
+				},
+			},
+			jason:   true,
+			verbose: false,
+		},
+		{
+			name: "verbose",
+			args: args{
+				cmd: &cli.Command{
+					Name:        "test",
+					Description: "a test command",
+					Action: func(cts context.Context, cmd *cli.Command) error {
+						return nil
+					},
+					Version: "1",
+				},
+			},
+			jason:   false,
+			verbose: true,
+		},
+		{
+			name: "json-and-verbose",
+			args: args{
+				cmd: &cli.Command{
+					Name:        "test",
+					Description: "a test command",
+					Action: func(cts context.Context, cmd *cli.Command) error {
+						return nil
+					},
+					Version: "1",
+				},
+			},
+			jason:   true,
+			verbose: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			printVersion(tt.args.cmd)
+			args := []string{"test", "--version"}
+			if tt.jason {
+				args = append(args, "--json")
+			}
+			if tt.verbose {
+				args = append(args, "--verbose")
+			}
+			before := flags
+			flags.Delete("config")
+			buf := &bytes.Buffer{}
+			tt.args.cmd.Writer = buf
+			addFlags(tt.args.cmd, flags.InUse())
+			cli.VersionPrinter = printVersion
+			tt.args.cmd.Run(context.Background(), args)
+			flags = before
 		})
 	}
 }
@@ -484,28 +776,167 @@ type config struct {
 
 func (c *config) Validate() error { return nil }
 
+type simple1 int
+
+func (i simple1) Validate() error {
+	return nil
+}
+
+type simple2 int
+
+func (i *simple2) Validate() error {
+	return nil
+}
+
 func TestWithConfiguration(t *testing.T) {
-	var cfg config
+	var (
+		cfg config
+		s1  simple1
+		s2  simple2
+	)
 
 	type args struct {
 		config Configuration
 	}
+
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
 		{
 			name: "ok",
 			args: args{
 				config: &cfg,
 			},
+			wantErr: false,
+		},
+		{
+			name: "not-a-pointer",
+			args: args{
+				config: s1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "not-a-struct",
+			args: args{
+				config: &s2,
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := WithConfiguration(tt.args.config); got == nil {
+			var got Option
+			if got = WithConfiguration(tt.args.config); got == nil {
 				t.Errorf("WithConfiguration() = nil")
 			}
+			err := got()
+			if err != nil && !tt.wantErr {
+				t.Errorf("WithConfiguration() err %v wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr {
+				if configuration != tt.args.config {
+					t.Errorf("WithConfiguration() configuration %p not expected, want %p", configuration, tt.args.config)
+				}
+			}
+			configuration = nil
+		})
+	}
+}
+func TestNoJson(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = NoJson(); got == nil {
+				t.Errorf("NoJson() returned nil ")
+			}
+			before := flags
+			got()
+			if flags.inuse.Contains("json") {
+				t.Error("NoJson failed to remove the json flag")
+			}
+			flags = before
+		})
+	}
+}
+
+func TestNoLog(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = NoLog(); got == nil {
+				t.Errorf("NoLog() returned nil ")
+			}
+			before := flags
+			got()
+			if flags.inuse.Contains("log") {
+				t.Error("NoLog failed to remove the log flag")
+			}
+			flags = before
+		})
+	}
+}
+
+func TestNoTrace(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = NoTrace(); got == nil {
+				t.Errorf("NoTrace() returned nil ")
+			}
+			before := flags
+			got()
+			if flags.inuse.Contains("trace") {
+				t.Error("NoTrace failed to remove the trace flag")
+			}
+			flags = before
+		})
+	}
+}
+
+func TestNoVerbose(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = NoVerbose(); got == nil {
+				t.Errorf("NoVerbose() returned nil ")
+			}
+			before := flags
+			got()
+			if flags.inuse.Contains("verbose") {
+				t.Error("NoVerbose failed to remove the verbose flag")
+			}
+			flags = before
 		})
 	}
 }

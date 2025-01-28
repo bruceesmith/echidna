@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/bruceesmith/echidna/logger"
+	"github.com/bruceesmith/echidna/set"
 	"github.com/bruceesmith/echidna/terminator"
 	"github.com/knadh/koanf"
 	kjson "github.com/knadh/koanf/parsers/json"
@@ -48,44 +49,81 @@ type configLoader struct {
 // Option is a functional parameter for Run()
 type Option func(params ...any) error
 
-var (
-	// Flag to specifiy the configuration source(s)
-	configFlag = &cli.StringSliceFlag{
-		Name:    "config",
-		Aliases: []string{"cfg"},
-		Usage:   "comma-separated list of path(s) to configuration file(s)",
+// flagset is used to manage the default flags provided by Run()
+type flagset struct {
+	all   map[string]cli.Flag
+	inuse *set.Set[string]
+}
+
+// Delete removes one of the default flags
+func (fs flagset) Delete(name string) {
+	fs.inuse.Delete(name)
+}
+
+// InUse returns a slice of the flags that remain in the standard
+// flag set after all Options that remove a flag have been executed
+func (fs flagset) InUse() []cli.Flag {
+	val := make([]cli.Flag, fs.inuse.Size(), fs.inuse.Size())
+	for k, v := range fs.inuse.Members() {
+		val[k] = fs.all[v]
 	}
+	return val
+}
+
+// Len is the number of default flags that will be added to the command line
+func (fs flagset) Len() int {
+	return fs.inuse.Size()
+}
+
+var (
+	// Standard flags provided if no Option "No***" functions were called on Run() and
+	// if WithConfiguration() was called on Run()
+	flags = flagset{
+		all: map[string]cli.Flag{
+			"config": &cli.StringSliceFlag{
+				Name:    "config",
+				Aliases: []string{"cfg"},
+				Usage:   "comma-separated list of path(s) to configuration file(s)",
+			},
+			"json": &cli.BoolFlag{
+				Name:    "json",
+				Aliases: []string{"J"},
+				Usage:   "output should be JSON format",
+			},
+			"log": &logger.LogLevelFlag{
+				Name:  "log",
+				Usage: "logging level (slog values plus LevelTrace)",
+				Value: logger.LogLevel(logger.LevelTrace),
+			},
+			"trace": &cli.StringSliceFlag{
+				Name:  "trace",
+				Usage: `comma-separated list of trace areas ["all" for every possible area]`,
+			},
+			"verbose": &cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"V"},
+				Usage:   "verbose output",
+			},
+		},
+		inuse: set.New(
+			"config",
+			"json",
+			"log",
+			"trace",
+			"verbose",
+		),
+	}
+
 	// Pointer to a configuration struct
 	configuration Configuration
-	// Default command-line flags beyond --help and --version that
-	// are provided natively by Koanf
-	standardFlags = []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "json",
-			Aliases: []string{"J"},
-			Usage:   "output should be JSON format",
-		},
-		&logger.LogLevelFlag{
-			Name:  "log",
-			Usage: "logging level (slog values plus LevelTrace)",
-		},
-		&cli.StringSliceFlag{
-			Name:  "trace",
-			Usage: `comma-separated list of trace areas ["all" for every possible area]`,
-		},
-		&cli.BoolFlag{
-			Name:    "verbose",
-			Aliases: []string{"V"},
-			Usage:   "verbose output",
-		},
-	}
+
 	// Command to print version information
 	version = &cli.Command{
 		Name:    "version",
 		Aliases: []string{"v"},
 		Usage:   "print the version",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			printVersion(cmd)
+			printVersion(cmd.Root())
 			return nil
 		},
 	}
@@ -103,6 +141,7 @@ func addCommand(cmd *cli.Command, command *cli.Command) {
 
 // addFlags adds one or more cli.Flag definitions to a command
 func addFlags(cmd *cli.Command, flags []cli.Flag) {
+	cmd.Flags = expand(cmd.Flags, len(flags))
 	cmd.Flags = append(cmd.Flags, flags...)
 }
 
@@ -117,7 +156,7 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 	if configuration != nil {
 		configs := cmd.StringSlice("config")
 		if len(configs) == 0 {
-			return ctx, fmt.Errorf("configuration not set, no --config flag provided")
+			return ctx, nil
 		} else {
 			// Build a list of configuration source providers
 			var configloaders []configLoader
@@ -149,6 +188,18 @@ func configure(config Configuration, configLoaders []configLoader) (err error) {
 	}
 
 	return
+}
+
+// expand grows a slice with either zero or one allocation
+func expand[T any](slice []T, size int) (v []T) {
+	if cap(slice) < len(slice)+size {
+		v = make([]T, len(slice), len(slice)+size)
+		for i, flag := range slice {
+			v[i] = flag
+		}
+		return v
+	}
+	return slice
 }
 
 // flag returns the string value of a command-line flag.
@@ -221,12 +272,18 @@ func logging(command *cli.Command) error {
 	// Set the logging level
 	value, found := flag(command, "log")
 	if found {
-		ll, ok := value.(logger.LogLevel)
-		if ok {
-			logger.SetLevel(slog.Level(ll))
-		} else {
-			return fmt.Errorf("cannot extract a LogLevel from %v", value)
+		var level logger.LogLevel
+		switch value.(type) {
+		case string:
+			lls, _ := value.(string)
+			level.Set(lls)
+		case logger.LogLevel:
+			level, _ = value.(logger.LogLevel)
+		default:
+			return fmt.Errorf("cannot extract a LogLevel from %v type %v", value, reflect.TypeOf(value))
 		}
+		logger.SetLevel(slog.Level(level))
+
 	}
 	// Register areas to be traced, if any
 	traces := command.StringSlice("trace")
@@ -263,16 +320,16 @@ func printVersion(cmd *cli.Command) {
 	if cmd.Bool("json") {
 		bites, err := json.Marshal(info)
 		if err != nil {
-			fmt.Println(`{"error":"` + err.Error() + `"}`)
+			fmt.Fprintln(cmd.Writer, `{"error":"`+err.Error()+`"}`)
 		} else {
-			fmt.Println(string(bites))
+			fmt.Fprintln(cmd.Writer, string(bites))
 		}
 	} else {
-		fmt.Println(info.Name, info.Version)
+		fmt.Fprintln(cmd.Writer, info.Name, info.Version)
 		if cmd.Bool("verbose") {
-			fmt.Println("Compiled with Go version", info.GoVersion)
+			fmt.Fprintln(cmd.Writer, "Compiled with Go version", info.GoVersion)
 			if info.Commit != "" {
-				fmt.Println("Git commit", info.Commit)
+				fmt.Fprintln(cmd.Writer, "Git commit", info.Commit)
 			}
 		}
 	}
@@ -301,8 +358,7 @@ func readConfig(k *koanf.Koanf, sources ...configLoader) error {
 // terminator to wait for goroutine cleanup
 func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	var err error
-	addFlags(command, standardFlags)
-	addCommand(command, version)
+	// Apply all the Options
 	for _, opt := range options {
 		err := opt()
 		if err != nil {
@@ -310,9 +366,17 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 			os.Exit(1)
 		}
 	}
-	if configuration != nil {
-		addFlags(command, []cli.Flag{configFlag})
+	// No use for a --config flag if WithConfiguration() wasn't used
+	if configuration == nil {
+		flags.Delete("config")
 	}
+	// Add on default flags that have not been scrapped
+	addFlags(command, flags.InUse())
+	// Add a "version" command. Thus seems to be required since we supply
+	// our own printVersion function
+	addCommand(command, version)
+	// Hook in the actions that need to happen after the command line is
+	// processed but before the Action code is executed
 	command.Before = before
 
 	err = command.Run(ctx, os.Args)
@@ -334,6 +398,34 @@ func WithConfiguration(config Configuration) Option {
 			return fmt.Errorf("argument to program.WithConfiguration must be a pointer to a struct")
 		}
 		configuration = config
+		return nil
+	}
+}
+
+func NoJson() Option {
+	return func(_ ...any) error {
+		flags.Delete("json")
+		return nil
+	}
+}
+
+func NoLog() Option {
+	return func(_ ...any) error {
+		flags.Delete("log")
+		return nil
+	}
+}
+
+func NoTrace() Option {
+	return func(_ ...any) error {
+		flags.Delete("trace")
+		return nil
+	}
+}
+
+func NoVerbose() Option {
+	return func(_ ...any) error {
+		flags.Delete("verbose")
 		return nil
 	}
 }
