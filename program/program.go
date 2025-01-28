@@ -117,6 +117,9 @@ var (
 	// Pointer to a configuration struct
 	configuration Configuration
 
+	// noOsExit is used during testing to avoid calling os.Exit() in Run()
+	noOsExit bool
+
 	// Command to print version information
 	version = &cli.Command{
 		Name:    "version",
@@ -343,7 +346,7 @@ func readConfig(k *koanf.Koanf, sources ...configLoader) error {
 		err = k.Load(source.Provider, source.Parser, source.Options...)
 		if err != nil {
 			if result != nil {
-				result = fmt.Errorf("%s; %s", result.Error(), err.Error())
+				result = fmt.Errorf("%s: %s", result.Error(), err.Error())
 			} else {
 				result = err
 			}
@@ -383,7 +386,9 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	terminator.Wait()
 	if err != nil && !strings.Contains(err.Error(), "flag provided but not defined") {
 		logger.Error("Error performing command", "error", err.Error(), "command", command.FullName())
-		os.Exit(1)
+		if !noOsExit {
+			os.Exit(1)
+		}
 	}
 }
 

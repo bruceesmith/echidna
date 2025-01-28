@@ -17,7 +17,9 @@ package program
 import (
 	"bytes"
 	"context"
+	"errors"
 	"log/slog"
+	"os"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -28,6 +30,7 @@ import (
 	kjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/structs"
 	"github.com/urfave/cli/v3"
 )
 
@@ -311,27 +314,73 @@ func Test_addFlags(t *testing.T) {
 
 func Test_before(t *testing.T) {
 	type args struct {
-		ctx context.Context
-		cmd *cli.Command
+		cmd  *cli.Command
+		line []string
 	}
+	var cfg config
 	tests := []struct {
-		name     string
-		args     args
-		wantCctx context.Context
-		wantErr  bool
+		name    string
+		args    args
+		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			args: args{
+				cmd: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Before: before,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+						&cli.StringSliceFlag{
+							Name: "config",
+						},
+					},
+				},
+				line: []string{"test", "--b", "--config", "testdata/test.yml"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "logging-error",
+			args: args{
+				cmd: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Before: before,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+						&cli.StringSliceFlag{
+							Name: "config",
+						},
+						&logger.LogLevelFlag{
+							Name: "log",
+						},
+					},
+				},
+				line: []string{"test", "--b", "--config", "testdata/test.yml", "--log", "fred"},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCctx, err := before(tt.args.ctx, tt.args.cmd)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("before() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			configuration = &cfg
+			err := tt.args.cmd.Run(context.Background(), tt.args.line)
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("error %v", err)
+				}
 			}
-			if !reflect.DeepEqual(gotCctx, tt.wantCctx) {
-				t.Errorf("before() = %v, want %v", gotCctx, tt.wantCctx)
-			}
+			configuration = nil
 		})
 	}
 }
@@ -341,17 +390,73 @@ func Test_configure(t *testing.T) {
 		config        Configuration
 		configLoaders []configLoader
 	}
+	var (
+		cfg config
+		s1  = struct {
+			I int `koanf:"i"`
+		}{
+			I: 33,
+		}
+		s2 = struct {
+			I int `koanf:"i"`
+		}{
+			I: 22,
+		}
+	)
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			args: args{
+				config: &cfg,
+				configLoaders: []configLoader{
+					{
+						Provider: structs.Provider(s1, "koanf"),
+						Parser:   nil,
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "read-error",
+			args: args{
+				config: &cfg,
+				configLoaders: []configLoader{
+					{
+						Provider: structs.Provider(s1, "koanf"),
+						Parser:   kjson.Parser(),
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "validate-error",
+			args: args{
+				config: &cfg,
+				configLoaders: []configLoader{
+					{
+						Provider: structs.Provider(s2, "koanf"),
+						Parser:   nil,
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := configure(tt.args.config, tt.args.configLoaders); (err != nil) != tt.wantErr {
-				t.Errorf("configure() error = %v, wantErr %v", err, tt.wantErr)
+			if err := configure(tt.args.config, tt.args.configLoaders); err != nil {
+				if !tt.wantErr {
+					t.Errorf("configure() error = %v, wantErr %v", err, tt.wantErr)
+				}
 			}
 		})
 	}
@@ -643,17 +748,85 @@ func Test_readConfig(t *testing.T) {
 		k       *koanf.Koanf
 		sources []configLoader
 	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
+	var s = struct {
+		I int `koanf:"i"`
 	}{
-		// TODO: Add test cases.
+		I: 22,
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantErr    bool
+		wantStruct map[string]interface{}
+	}{
+		{
+			name: "ok",
+			args: args{
+				k: koanf.New("."),
+				sources: []configLoader{
+					{
+						Provider: structs.Provider(s, "koanf"),
+						Parser:   nil,
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: false,
+			wantStruct: map[string]interface{}{
+				"i": 22,
+			},
+		},
+		{
+			name: "single-error",
+			args: args{
+				k: koanf.New("."),
+				sources: []configLoader{
+					{
+						Provider: structs.Provider(s, "koanf"),
+						Parser:   kjson.Parser(),
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: true,
+			wantStruct: map[string]interface{}{
+				"i": 22,
+			},
+		},
+		{
+			name: "multiple-error",
+			args: args{
+				k: koanf.New("."),
+				sources: []configLoader{
+					{
+						Provider: structs.Provider(s, "koanf"),
+						Parser:   kjson.Parser(),
+						Options:  nil,
+					},
+					{
+						Provider: structs.Provider(s, "koanf"),
+						Parser:   kjson.Parser(),
+						Options:  nil,
+					},
+				},
+			},
+			wantErr: true,
+			wantStruct: map[string]interface{}{
+				"i": 22,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := readConfig(tt.args.k, tt.args.sources...); (err != nil) != tt.wantErr {
-				t.Errorf("readConfig() error = %v, wantErr %v", err, tt.wantErr)
+			err := readConfig(tt.args.k, tt.args.sources...)
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("readConfig() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			} else {
+				if !reflect.DeepEqual(tt.args.k.Raw(), tt.wantStruct) {
+					t.Errorf("readConfig() want %v got %v", tt.wantStruct, tt.args.k.Raw())
+				}
 			}
 		})
 	}
@@ -753,28 +926,79 @@ func Test_printVersion(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	type args struct {
-		ctx     context.Context
 		command *cli.Command
 		options []Option
+		line    []string
 	}
+	var cfg config
 	tests := []struct {
-		name string
-		args args
+		name    string
+		args    args
+		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ok",
+			args: args{
+				command: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+					},
+				},
+				options: []Option{
+					WithConfiguration(&cfg),
+				},
+				line: []string{"test", "--b"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "error",
+			args: args{
+				command: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return errors.New("Run() error")
+					},
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+					},
+				},
+				options: []Option{
+					WithConfiguration(&cfg),
+				},
+				line: []string{"test", "--b"},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			Run(tt.args.ctx, tt.args.command, tt.args.options...)
+			noOsExit = true
+			os.Args = tt.args.line
+			Run(context.Background(), tt.args.command, tt.args.options...)
+			noOsExit = false
 		})
 	}
 }
 
 type config struct {
-	I int
+	I int `koanf:"i"`
 }
 
-func (c *config) Validate() error { return nil }
+func (c *config) Validate() error {
+	if c.I != 33 {
+		return errors.New("I must be 33")
+	}
+	return nil
+}
 
 type simple1 int
 
@@ -790,7 +1014,7 @@ func (i *simple2) Validate() error {
 
 func TestWithConfiguration(t *testing.T) {
 	var (
-		cfg config
+		cfg = config{I: 33}
 		s1  simple1
 		s2  simple2
 	)
