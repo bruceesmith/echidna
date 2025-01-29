@@ -381,6 +381,13 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	// Hook in the actions that need to happen after the command line is
 	// processed but before the Action code is executed
 	command.Before = before
+	// Direct logging to the same io.Writers as the command
+	if command.Root().Writer != nil {
+		logger.RedirectStandard(command.Root().Writer)
+	}
+	if command.Root().ErrWriter != nil {
+		logger.RedirectTrace(command.Root().ErrWriter)
+	}
 
 	err = command.Run(ctx, os.Args)
 	terminator.Wait()
