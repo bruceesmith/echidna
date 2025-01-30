@@ -27,7 +27,7 @@ func Observe[T any](name string, cb func(T)) error {
 		if evtype != vtype {
 			return fmt.Errorf("cannot add new callback func(%s) to observable %s (type %s)", vtype.String(), name, evtype.String())
 		}
-		callbacks = append(callbacks, cb)
+		observables[name] = append(callbacks, cb)
 	}
 	return nil
 }

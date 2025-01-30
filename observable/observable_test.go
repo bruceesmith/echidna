@@ -114,6 +114,9 @@ func TestSet(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := Observe("fred", func(i int) {})
+			if err != nil {
+				t.Errorf("Set() error = %v in setup", err)
+			}
 			if len(tt.args.svalue) == 0 {
 				if err = Set(tt.args.name, tt.args.value); (err != nil) != tt.wantErr {
 					t.Errorf("Set() error = %v, wantErr %v", err, tt.wantErr)
