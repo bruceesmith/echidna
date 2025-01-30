@@ -2,6 +2,19 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
+/*
+Package observable is a simple generic implementation of the Observer design pattern.
+
+Observables are identified by a string name which must be unique across an application.
+Calling the [observable/Observe] function both registers an observable by name and type, but also
+registers an observer by providing a notification function that is invoked when the value of the
+observable changes. Multiple observers can call [observable/Observe] to register for notifications
+concerning an existing observable; in this case, notification functions are called in the order
+in which they were registered.
+
+To change the value of an observable, and to notify all observers by invoking their
+callback notification function, call the [observable/Set] function.
+*/
 package observable
 
 import (
