@@ -35,13 +35,13 @@ Package echidna provides sub\-packages for building robust Go daemons and CLIs
 
 - observable is an implementation of the [Gang of Four](<https://en.wikipedia.org/wiki/Design_Patterns>) [observer](<https://en.wikipedia.org/wiki/Observer_pattern>) pattern, useful in event\-driven programs such as GUIs.
 
-- [echidna/program](<https://pkg.go.dev/echidna/program/>) builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
+- program builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
 
-- [echidna/set](<https://pkg.go.dev/echidna/set/>) defines goroutine\-safe methods for manipulating a generic [set](<https://en.wikipedia.org/wiki/Set_(abstract_data_type)>) data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
+- set defines goroutine\-safe methods for manipulating a generic [set](<https://en.wikipedia.org/wiki/Set_(abstract_data_type)>) data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
 
-- [echidna/stack](<https://pkg.go.dev/echidna/stack/>) defines goroutine\-safe methods for manipulating a generic [stack](<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)>) data structure via the standard operations IsEmpty, Peek, Pop, Push and Size.
+- stack defines goroutine\-safe methods for manipulating a generic [stack](<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)>) data structure via the standard operations IsEmpty, Peek, Pop, Push and Size.
 
-- [echidna/terminator](<https://pkg.go.dev/echidna/terminator/>) permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup](<https://pkg.go.dev/sync/#WaitGroup>). There is a default \[terminator.Terminator\] accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
+- terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup](<https://pkg.go.dev/sync/#WaitGroup>). There is a default \[terminator.Terminator\] accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
 
 Refer to the documentation for the individual packages for more details.
 

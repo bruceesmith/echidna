@@ -9,16 +9,16 @@ Package echidna provides sub-packages for building robust Go daemons and CLIs
 
   - observable is an implementation of the [Gang of Four] [observer] pattern, useful in event-driven programs such as GUIs.
 
-  - [echidna/program] builds upon the Github packages [knadh/koanf] and [urfave/cli/v3] to make it extremely simple to use the
+  - program builds upon the Github packages [knadh/koanf] and [urfave/cli/v3] to make it extremely simple to use the
     features of those two excellent packages in concert.
 
-  - [echidna/set] defines goroutine-safe methods for manipulating a generic [set] data structure via the standard operations Add, Contains,
+  - set defines goroutine-safe methods for manipulating a generic [set] data structure via the standard operations Add, Contains,
     Intersection, Members, String and Union.
 
-  - [echidna/stack] defines goroutine-safe methods for manipulating a generic [stack] data structure via the standard operations IsEmpty,
+  - stack defines goroutine-safe methods for manipulating a generic [stack] data structure via the standard operations IsEmpty,
     Peek, Pop, Push and Size.
 
-  - [echidna/terminator] permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup].
+  - terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup].
     There is a default [terminator.Terminator] accessible through top level functions (Add, Done, Wait and so on) that call the
     corresponding Terminator methods.
 
