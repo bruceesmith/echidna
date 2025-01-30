@@ -259,7 +259,7 @@ func loaders(paths []string) ([]configLoader, error) {
 		case strings.HasSuffix(path, "yml"), strings.HasSuffix(path, "yaml"):
 			loader.Parser = yaml.Parser()
 		default:
-			err := fmt.Errorf("no configuraiton parser defined for %s", path)
+			err := fmt.Errorf("no configuration parser defined for %s", path)
 			return nil, err
 		}
 		loaders[i] = loader

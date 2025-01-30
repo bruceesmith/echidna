@@ -123,7 +123,7 @@ func Test_flagset_InUse(t *testing.T) {
 			},
 		},
 		{
-			name: "non-existant",
+			name: "non-existent",
 			fields: fields{
 				all: map[string]cli.Flag{
 					"one":   &one,
