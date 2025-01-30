@@ -23,15 +23,17 @@ import "github.com/bruceesmith/echidna"
 
 Package echidna provides sub\-packages for building robust Go daemons and CLIs
 
-- logger supports logging and tracing based on the standard library package slog.
+- logger supports logging and tracing based on the standard library package [log/slog](<https://pkg.go.dev/log/slog/>).
 
-- program builds upon the Github packages knadh/koanf and urfave/cli/v3 to make it extremely simple to use the features of those two excellent packages in concert.
+- observable is an implementation of the [Gang of Four](<https://en.wikipedia.org/wiki/Design_Patterns>) [observer](<https://en.wikipedia.org/wiki/Observer_pattern>) pattern, useful in event\-driven programs such as GUIs.
 
-- set defines goroutine\-safe methods for manipulating a generic set data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
+- [echidna/program](<https://pkg.go.dev/echidna/program/>) builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
 
-- stack defines goroutine\-safe methods for manipulating a generic stack data structure via the standard operations IsEmpty, Peek, Pop, Pushand Size.
+- [echidna/set](<https://pkg.go.dev/echidna/set/>) defines goroutine\-safe methods for manipulating a generic [set](<https://en.wikipedia.org/wiki/Set_(abstract_data_type)>) data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
 
-- terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic stop of a sync.WaitGroup. There is a default Terminator accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
+- [echidna/stack](<https://pkg.go.dev/echidna/stack/>) defines goroutine\-safe methods for manipulating a generic [stack](<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)>) data structure via the standard operations IsEmpty, Peek, Pop, Push and Size.
+
+- [echidna/terminator](<https://pkg.go.dev/echidna/terminator/>) permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup](<https://pkg.go.dev/sync/#WaitGroup>). There is a default \[terminator.Terminator\] accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
 
 Refer to the documentation for the individual packages for more details.
 
@@ -42,27 +44,12 @@ Refer to the documentation for the individual packages for more details.
 
 ## Variables
 
-<a name="Program"></a>
-
-```go
-var (
-    // Program is the program name
-    Program string
-    // Version is the program version
-    Version string
-)
-```
-
 <a name="BuildDate"></a>
 
 ```go
 var (
     // BuildDate is the timestamp for when this program was compiled
     BuildDate string = `Filled in during the build`
-    // ErrConfigOK is returned when --checkcfg finds the configuration in good order
-    ErrConfigOK = errors.New("configuration is OK")
-    // ErrVersion is returned when --version is given
-    ErrVersion = errors.New("version requested")
 )
 ```
 
@@ -74,7 +61,13 @@ import "github.com/bruceesmith/echidna/logger"
 
 Package logger supports logging and tracing based on the standard library package slog.
 
-Debug, Error, Info and Warn operate like their package slog equivalents, with the level of logging modifiable using SetLevel. A custom logging level \(LevelTrace\) can be supplied to SetLevel to enable tracing. Tracing can be unconditional when calling Trace, or only enabled for pre\-defined identifiers when calling TraceID. Identifiers for TraceID are registered by calling SetTraceIDs. By default, all debug, error, info and warn messages go to Stdout, and traces go to Stderr; these destinations can be changed by calling RedirectNormal and RedirectTrace respectively
+Debug, Error, Info and Warn operate like their package slog equivalents, with the level of logging modifiable using SetLevel.
+
+A custom logging level \(LevelTrace\) can be supplied to SetLevel to enable tracing. Tracing can be unconditional when calling Trace, or only enabled for pre\-defined identifiers when calling TraceID. Identifiers for TraceID are registered by calling SetTraceIDs.
+
+By default, all debug, error, info and warn messages go to Stdout, and traces go to Stderr; these destinations can be changed by calling RedirectNormal and RedirectTrace respectively.
+
+When used in [cli applications](<https://github.com/urfave/cli>), a cli.Flag representing a LogLevel can be provided using the LogLevelFlag type.
 
 ## Index
 
@@ -104,7 +97,7 @@ Debug, Error, Info and Warn operate like their package slog equivalents, with th
 
 
 <a name="Debug"></a>
-## func [Debug](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L84>)
+## func [Debug](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L92>)
 
 ```go
 func Debug(msg string, args ...any)
@@ -113,7 +106,7 @@ func Debug(msg string, args ...any)
 Debug emits a debug log
 
 <a name="Error"></a>
-## func [Error](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L89>)
+## func [Error](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L97>)
 
 ```go
 func Error(msg string, args ...any)
@@ -122,7 +115,7 @@ func Error(msg string, args ...any)
 Error emits an error log
 
 <a name="Info"></a>
-## func [Info](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L94>)
+## func [Info](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L102>)
 
 ```go
 func Info(msg string, args ...any)
@@ -131,7 +124,7 @@ func Info(msg string, args ...any)
 Info emits an info log
 
 <a name="Level"></a>
-## func [Level](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L98>)
+## func [Level](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L106>)
 
 ```go
 func Level() string
@@ -140,7 +133,7 @@ func Level() string
 
 
 <a name="RedirectStandard"></a>
-## func [RedirectStandard](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L103>)
+## func [RedirectStandard](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L111>)
 
 ```go
 func RedirectStandard(w io.Writer)
@@ -149,7 +142,7 @@ func RedirectStandard(w io.Writer)
 RedirectStandard changes the destination for normal \(non\-trace\) logs
 
 <a name="RedirectTrace"></a>
-## func [RedirectTrace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L114>)
+## func [RedirectTrace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L122>)
 
 ```go
 func RedirectTrace(w io.Writer)
@@ -158,7 +151,7 @@ func RedirectTrace(w io.Writer)
 RedirectTrace changes the destination for normal \(non\-trace\) logs
 
 <a name="SetFormat"></a>
-## func [SetFormat](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L125>)
+## func [SetFormat](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L133>)
 
 ```go
 func SetFormat(f Format)
@@ -167,7 +160,7 @@ func SetFormat(f Format)
 SetFormat changes the format of log entries
 
 <a name="SetLevel"></a>
-## func [SetLevel](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L139>)
+## func [SetLevel](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L147>)
 
 ```go
 func SetLevel(l slog.Level)
@@ -176,7 +169,7 @@ func SetLevel(l slog.Level)
 SetLevel sets the default level of logging
 
 <a name="SetTraceIds"></a>
-## func [SetTraceIds](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L144>)
+## func [SetTraceIds](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L152>)
 
 ```go
 func SetTraceIds(ids ...string)
@@ -185,7 +178,7 @@ func SetTraceIds(ids ...string)
 SetTraceIds registers identifiers for future tracing
 
 <a name="Trace"></a>
-## func [Trace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L151>)
+## func [Trace](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L159>)
 
 ```go
 func Trace(msg string, args ...any)
@@ -194,7 +187,7 @@ func Trace(msg string, args ...any)
 Trace emits one JSON\-formatted log entry if trace level logging is enabled
 
 <a name="TraceID"></a>
-## func [TraceID](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L162>)
+## func [TraceID](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L170>)
 
 ```go
 func TraceID(id string, msg string, args ...any)
@@ -203,7 +196,7 @@ func TraceID(id string, msg string, args ...any)
 TraceID emits one JSON\-formatted log entry if tracing is enabled for the requested ID
 
 <a name="Warn"></a>
-## func [Warn](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L173>)
+## func [Warn](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L181>)
 
 ```go
 func Warn(msg string, args ...any)
@@ -212,7 +205,7 @@ func Warn(msg string, args ...any)
 Warn emits a warning log
 
 <a name="Format"></a>
-## type [Format](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L30>)
+## type [Format](<https://github.com/bruceesmith/echidna/blob/main/logger/logger.go#L38>)
 
 Format determines the format of each log entry
 
@@ -329,71 +322,35 @@ Type is a conveniene method for pflag.Value
 import "github.com/bruceesmith/echidna/observable"
 ```
 
+Package observable is a simple generic implementation of the Observer design pattern.
+
+Observables are identified by a string name which must be unique across an application. Calling the [observable/Observe](<https://pkg.go.dev/observable/Observe/>) function both registers an observable by name and type, but also registers an observer by providing a notification function that is invoked when the value of the observable changes. Multiple observers can call [observable/Observe](<https://pkg.go.dev/observable/Observe/>) to register for notifications concerning an existing observable; in this case, notification functions are called in the order in which they were registered.
+
+To change the value of an observable, and to notify all observers by invoking their callback notification function, call the [observable/Set](<https://pkg.go.dev/observable/Set/>) function.
+
 ## Index
 
-- [func DeleteObservable\(topic string\) \(err error\)](<#DeleteObservable>)
-- [func DetachObserver\(topic, name string\) \(err error\)](<#DetachObserver>)
-- [func Notify\(topic string\) \(err error\)](<#Notify>)
-- [func RegisterObserver\(topic, name string, update func\(func\(\) interface\{\}\)\) \(err error\)](<#RegisterObserver>)
-- [func RegisterSubject\(topic string, get func\(\) interface\{\}\) \(err error\)](<#RegisterSubject>)
-- [type Observable](<#Observable>)
+- [func Observe\[T any\]\(name string, cb func\(T\)\) error](<#Observe>)
+- [func Set\[T any\]\(name string, value T\) error](<#Set>)
 
 
-<a name="DeleteObservable"></a>
-## func [DeleteObservable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L40>)
+<a name="Observe"></a>
+## func [Observe](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L33>)
 
 ```go
-func DeleteObservable(topic string) (err error)
+func Observe[T any](name string, cb func(T)) error
 ```
 
-DeleteObservable removes all references to an Observable
+Observe either registers a new observable, or adds another observer \(notification function\) to an existing observable
 
-<a name="DetachObserver"></a>
-## func [DetachObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L24>)
+<a name="Set"></a>
+## func [Set](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L50>)
 
 ```go
-func DetachObserver(topic, name string) (err error)
+func Set[T any](name string, value T) error
 ```
 
-DetachObserver removes an Observer from an Observable
-
-<a name="Notify"></a>
-## func [Notify](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L54>)
-
-```go
-func Notify(topic string) (err error)
-```
-
-Notify calls the Update function for every registered Observer, passing the Subject's registered Get function to each Observer. The Oberver will use this Get function to fetch the Observable's value
-
-<a name="RegisterObserver"></a>
-## func [RegisterObserver](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L70>)
-
-```go
-func RegisterObserver(topic, name string, update func(func() interface{})) (err error)
-```
-
-RegisterObserver registers a new Observer. If the referenced Observable has not previously been registered, this function registers it in anticipation that a Subject in a separate goroutine will subsequently register
-
-<a name="RegisterSubject"></a>
-## func [RegisterSubject](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L91>)
-
-```go
-func RegisterSubject(topic string, get func() interface{}) (err error)
-```
-
-RegisterSubject registers a new Subject. If the referenced Observable is has previously been registered, this function simply saves its getter
-
-<a name="Observable"></a>
-## type [Observable](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L13-L16>)
-
-Observable represents a value that is handled by an Observer pattern
-
-```go
-type Observable struct {
-    // contains filtered or unexported fields
-}
-```
+Set notifies all observers that the value of an observable has changed by calling all registered notification functions
 
 # <a name="programme">4. program</a>
 
@@ -412,11 +369,15 @@ If a configuration struct is provided to the Run\(\) function, then a further co
 - [func Run\(ctx context.Context, command \*cli.Command, options ...Option\)](<#Run>)
 - [type Configuration](<#Configuration>)
 - [type Option](<#Option>)
+  - [func NoJSON\(\) Option](<#NoJSON>)
+  - [func NoLog\(\) Option](<#NoLog>)
+  - [func NoTrace\(\) Option](<#NoTrace>)
+  - [func NoVerbose\(\) Option](<#NoVerbose>)
   - [func WithConfiguration\(config Configuration\) Option](<#WithConfiguration>)
 
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L285>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L362>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
@@ -425,7 +386,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option)
 Run is the primary external function of this library. It augments the cli.Command with default command\-line flags, hooks in handling for processing a configuration, runs the appropriate Action, calls the terminator to wait for goroutine cleanup
 
 <a name="Configuration"></a>
-## type [Configuration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L37-L39>)
+## type [Configuration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L38-L40>)
 
 Configuration is the interface for a configuration struct
 
@@ -436,7 +397,7 @@ type Configuration interface {
 ```
 
 <a name="Option"></a>
-## type [Option](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L49>)
+## type [Option](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L50>)
 
 Option is a functional parameter for Run\(\)
 
@@ -444,8 +405,44 @@ Option is a functional parameter for Run\(\)
 type Option func(params ...any) error
 ```
 
+<a name="NoJSON"></a>
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L417>)
+
+```go
+func NoJSON() Option
+```
+
+
+
+<a name="NoLog"></a>
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L424>)
+
+```go
+func NoLog() Option
+```
+
+
+
+<a name="NoTrace"></a>
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L431>)
+
+```go
+func NoTrace() Option
+```
+
+
+
+<a name="NoVerbose"></a>
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L438>)
+
+```go
+func NoVerbose() Option
+```
+
+
+
 <a name="WithConfiguration"></a>
-### func [WithConfiguration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L311>)
+### func [WithConfiguration](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L404>)
 
 ```go
 func WithConfiguration(config Configuration) Option
