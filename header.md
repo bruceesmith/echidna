@@ -1,4 +1,5 @@
 [![Go Reference][goreference_badge]][goreference_link]
+[![Go Report Card][goreportcard_badge]][goreportcard_link]
 
 # <div align="center">Echidna Library for Go</div>
 
@@ -19,3 +20,5 @@
 
 [goreference_badge]: https://pkg.go.dev/badge/github.com/bruceesmith/echidna/v3.svg
 [goreference_link]: https://pkg.go.dev/github.com/bruceesmith/echidna
+[goreportcard_badge]: https://goreportcard.com/badge/github.com/bruceesmith/echidna
+[goreportcard_link]: https://goreportcard.com/report/github.com/bruceesmith/echidna
