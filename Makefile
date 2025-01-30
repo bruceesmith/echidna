@@ -3,7 +3,7 @@ File: Makefile
 
 # Change these variables as necessary.
 main_package_path = ./
-binary_name = dummy
+binary_name = ""
 
 # ==================================================================================== #
 # HELPERS
@@ -41,14 +41,12 @@ audit: test
 ## test: run all tests
 .PHONY: test
 test:
+	go test -race -buildvcs -cover ./...
+
+## test/verbose: run all tests with verbose output
+.PHONY: test
+test/verbose:
 	go test -v -race -buildvcs -cover ./...
-
-## test/cover: run all tests and display coverage
-.PHONY: test/cover
-test/cover:
-	go test -v -race -buildvcs -coverprofile=/tmp/coverage.out ./...
-	go tool cover -html=/tmp/coverage.out
-
 
 # ==================================================================================== #
 # DEVELOPMENT
@@ -97,6 +95,5 @@ prod: audit no-dirty
 	GOOS=linux GOARCH=amd64 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o ${HOME}/go/bin/${binary_name} ${main_package_path}
 	upx -5 ~/go/bin/${binary_name}
 	# Include additional deployment steps here...
-bruce: audit
-	GOOS=linux GOARCH=amd64 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o ${HOME}/go/bin/${binary_name} ${main_package_path}
-	# upx -5 ~/go/bin/${binary_name} # upx not for a library
+library: audit
+	GOOS=linux GOARCH=amd64 go build ./...
