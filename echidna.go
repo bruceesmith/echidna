@@ -4,20 +4,7 @@
 
 package echidna
 
-import "errors"
-
-var (
-	// Program is the program name
-	Program string
-	// Version is the program version
-	Version string
-)
-
 var (
 	// BuildDate is the timestamp for when this program was compiled
 	BuildDate string = `Filled in during the build`
-	// ErrConfigOK is returned when --checkcfg finds the configuration in good order
-	ErrConfigOK = errors.New("configuration is OK")
-	// ErrVersion is returned when --version is given
-	ErrVersion = errors.New("version requested")
 )
