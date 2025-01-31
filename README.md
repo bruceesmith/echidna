@@ -377,6 +377,7 @@ If a configuration struct is provided to the Run\(\) function, then a further co
 - [func Run\(ctx context.Context, command \*cli.Command, options ...Option\)](<#Run>)
 - [type Configuration](<#Configuration>)
 - [type Option](<#Option>)
+  - [func NoDefaultFlags\(\) Option](<#NoDefaultFlags>)
   - [func NoJSON\(\) Option](<#NoJSON>)
   - [func NoLog\(\) Option](<#NoLog>)
   - [func NoTrace\(\) Option](<#NoTrace>)
@@ -413,8 +414,17 @@ Option is a functional parameter for Run\(\)
 type Option func(params ...any) error
 ```
 
+<a name="NoDefaultFlags"></a>
+### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L419>)
+
+```go
+func NoDefaultFlags() Option
+```
+
+NoDefaultFlags is a convenience function which is equivalent to calling all of NoJSON, NoLog, NoTrace, and NoVerbose
+
 <a name="NoJSON"></a>
-### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L417>)
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L428>)
 
 ```go
 func NoJSON() Option
@@ -423,7 +433,7 @@ func NoJSON() Option
 
 
 <a name="NoLog"></a>
-### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L424>)
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L435>)
 
 ```go
 func NoLog() Option
@@ -432,7 +442,7 @@ func NoLog() Option
 
 
 <a name="NoTrace"></a>
-### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L431>)
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L442>)
 
 ```go
 func NoTrace() Option
@@ -441,7 +451,7 @@ func NoTrace() Option
 
 
 <a name="NoVerbose"></a>
-### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L438>)
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/program/program.go#L449>)
 
 ```go
 func NoVerbose() Option

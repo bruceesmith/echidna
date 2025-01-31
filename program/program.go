@@ -414,6 +414,17 @@ func WithConfiguration(config Configuration) Option {
 	}
 }
 
+// NoDefaultFlags is a convenience function which is equivalent to
+// calling all of NoJSON, NoLog, NoTrace, and NoVerbose
+func NoDefaultFlags() Option {
+	return func(_ ...any) error {
+		flags.Delete("json")
+		flags.Delete("log")
+		flags.Delete("trace")
+		flags.Delete("verbose")
+		return nil
+	}
+}
 func NoJSON() Option {
 	return func(_ ...any) error {
 		flags.Delete("json")

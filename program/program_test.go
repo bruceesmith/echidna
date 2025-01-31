@@ -374,6 +374,9 @@ func Test_before(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			configuration = &cfg
+			buf := &bytes.Buffer{}
+			tt.args.cmd.Writer = buf
+			tt.args.cmd.ErrWriter = buf
 			err := tt.args.cmd.Run(context.Background(), tt.args.line)
 			if err != nil {
 				if !tt.wantErr {
@@ -583,7 +586,6 @@ func Test_flag(t *testing.T) {
 				line: []string{"test", "-log", "error"},
 			},
 			wantValue: logger.LogLevel(slog.LevelError),
-			// wantValue: 77,
 			wantFound: true,
 		},
 		{
@@ -911,14 +913,13 @@ func Test_printVersion(t *testing.T) {
 			if tt.verbose {
 				args = append(args, "--verbose")
 			}
-			before := flags
+
 			flags.Delete("config")
 			buf := &bytes.Buffer{}
 			tt.args.cmd.Writer = buf
 			addFlags(tt.args.cmd, flags.InUse())
 			cli.VersionPrinter = printVersion
 			tt.args.cmd.Run(context.Background(), args)
-			flags = before
 		})
 	}
 }
@@ -978,14 +979,18 @@ func TestRun(t *testing.T) {
 			wantErr: true,
 		},
 	}
+	before := flags.inuse.Members()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			buf := &bytes.Buffer{}
+			tt.args.command.Writer = buf
 			noOsExit = true
 			os.Args = tt.args.line
 			Run(context.Background(), tt.args.command, tt.args.options...)
 			noOsExit = false
 		})
 	}
+	flags.inuse = set.New(before...)
 }
 
 type config struct {
@@ -1068,6 +1073,30 @@ func TestWithConfiguration(t *testing.T) {
 		})
 	}
 }
+
+func TestNoDefaultFlags(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "ok",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = NoDefaultFlags(); got == nil {
+				t.Errorf("NoDefaultFlags() returned nil ")
+			}
+			got()
+			if flags.inuse.Contains("json") || flags.inuse.Contains("log") || flags.inuse.Contains("trace") || flags.inuse.Contains("verbose") {
+				t.Errorf("NoDefaultFlags() unexpected in-use flags = %v", flags.inuse.Members())
+			}
+
+		})
+	}
+}
+
 func TestNoJSON(t *testing.T) {
 	tests := []struct {
 		name string
@@ -1082,12 +1111,10 @@ func TestNoJSON(t *testing.T) {
 			if got = NoJSON(); got == nil {
 				t.Errorf("NoJson() returned nil ")
 			}
-			before := flags
 			got()
 			if flags.inuse.Contains("json") {
 				t.Error("NoJson failed to remove the json flag")
 			}
-			flags = before
 		})
 	}
 }
@@ -1106,12 +1133,10 @@ func TestNoLog(t *testing.T) {
 			if got = NoLog(); got == nil {
 				t.Errorf("NoLog() returned nil ")
 			}
-			before := flags
 			got()
 			if flags.inuse.Contains("log") {
 				t.Error("NoLog failed to remove the log flag")
 			}
-			flags = before
 		})
 	}
 }
@@ -1130,12 +1155,10 @@ func TestNoTrace(t *testing.T) {
 			if got = NoTrace(); got == nil {
 				t.Errorf("NoTrace() returned nil ")
 			}
-			before := flags
 			got()
 			if flags.inuse.Contains("trace") {
 				t.Error("NoTrace failed to remove the trace flag")
 			}
-			flags = before
 		})
 	}
 }
@@ -1154,12 +1177,10 @@ func TestNoVerbose(t *testing.T) {
 			if got = NoVerbose(); got == nil {
 				t.Errorf("NoVerbose() returned nil ")
 			}
-			before := flags
 			got()
 			if flags.inuse.Contains("verbose") {
 				t.Error("NoVerbose failed to remove the verbose flag")
 			}
-			flags = before
 		})
 	}
 }
