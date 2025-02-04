@@ -34,8 +34,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-// Configuration is the interface for a configuration struct
-type Configuration interface {
+// Configurator is the interface for a configuration struct
+type Configurator interface {
 	Validate() error
 }
 
@@ -77,7 +77,7 @@ func (fs flagset) Len() int {
 
 var (
 	// Standard flags provided if no Option "No***" functions were called on Run() and
-	// if WithConfiguration() was called on Run()
+	// if Configuration() was called on Run()
 	flags = flagset{
 		all: map[string]cli.Flag{
 			"config": &cli.StringSliceFlag{
@@ -115,7 +115,7 @@ var (
 	}
 
 	// Pointer to a configuration struct
-	configuration Configuration
+	configuration Configurator
 
 	// noOsExit is used during testing to avoid calling os.Exit() in Run()
 	noOsExit bool
@@ -161,22 +161,51 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 		if len(configs) == 0 {
 			return ctx, nil
 		} else {
+			// The command line has been parsed and values set for any provided flags. If
+			// any of the flags were generated from the configuration struct by the [urfave/sflags] package,
+			// and any of these mapped flags were provided on the command line, then the associated
+			// fields in the configuration struct have been updated from the relevant command line flag(s).
+			//
+			// The configuration is about to be updated by reading from any configuration sources provided
+			// by the flag --config. This would override the flag values that have just been saved. So the
+			// configuration is copied at this point. Later, these flag values will be applied again
+			// (because flags override values loaded from the configuration sources). Whew ....
+			binds, err := newFlagBinder(configuration)
+			if err != nil {
+				return ctx, fmt.Errorf("configuration handling failed: [%w]", err)
+			}
+
 			// Build a list of configuration source providers
 			var configloaders []configLoader
 			configloaders, err = loaders(configs)
 			if err != nil {
 				return ctx, fmt.Errorf("config load error: [%w]", err)
 			}
-			// Read, parse, store and validate the configuration
+
+			// Read, parse, store the configuration
 			err = configure(configuration, configloaders)
+			if err != nil {
+				return ctx, fmt.Errorf("configuration loading failed: [%w]", err)
+			}
+
+			// Update the configuration that has just been loaded with any values that were provided
+			// on the command line
+			applyFlagOverrides(cmd.FlagNames(), binds)
+
+			// Finally, validate the resulting configuration
+			err = configuration.Validate()
+			if err != nil {
+				return ctx, fmt.Errorf("configuration validation failed: [%w]", err)
+			}
+
 		}
 	}
 	return ctx, err
 }
 
 // configure reads the configuration from the nominated sources, unmarshals it into
-// the provided struct, and finally invokes the configuration validator
-func configure(config Configuration, configLoaders []configLoader) (err error) {
+// the provided struct
+func configure(config Configurator, configLoaders []configLoader) (err error) {
 	konfigurator := koanf.New(".")
 	err = readConfig(konfigurator, configLoaders...)
 	if err != nil {
@@ -188,12 +217,22 @@ func configure(config Configuration, configLoaders []configLoader) (err error) {
 		return fmt.Errorf("failed to unmarshal configuration: [%w]", err)
 	}
 
-	err = config.Validate()
-	if err != nil {
-		return fmt.Errorf("configuration validation failed: [%w]", err)
-	}
-
 	return
+}
+
+// Configuration is an Option helper to define a configuration structure
+// that will be populated from the sources given on a --config command-line flag
+func Configuration(config Configurator) Option {
+	return func(_ ...any) error {
+		if reflect.TypeOf(config).Kind() != reflect.Pointer {
+			return fmt.Errorf("argument to program.Configuration must be a pointer")
+		}
+		if reflect.TypeOf(config).Elem().Kind() != reflect.Struct {
+			return fmt.Errorf("argument to program.Configuration must be a pointer to a struct")
+		}
+		configuration = config
+		return nil
+	}
 }
 
 // expand grows a slice with either zero or one allocation
@@ -363,13 +402,13 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	var err error
 	// Apply all the Options
 	for _, opt := range options {
-		err := opt()
+		err := opt(command)
 		if err != nil {
 			logger.Error("Error executing Run() options", "error", err.Error())
 			os.Exit(1)
 		}
 	}
-	// No use for a --config flag if WithConfiguration() wasn't used
+	// No use for a --config flag if Configuration() wasn't used
 	if configuration == nil {
 		flags.Delete("config")
 	}
@@ -396,21 +435,6 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 		if !noOsExit {
 			os.Exit(1)
 		}
-	}
-}
-
-// WithConfiguration is an Option helper to define a configuration structure
-// that will be populated from the sources given on a --config command-line flag
-func WithConfiguration(config Configuration) Option {
-	return func(_ ...any) error {
-		if reflect.TypeOf(config).Kind() != reflect.Pointer {
-			return fmt.Errorf("argument to program.WithConfiguration must be a pointer")
-		}
-		if reflect.TypeOf(config).Elem().Kind() != reflect.Struct {
-			return fmt.Errorf("argument to program.WithConfiguration must be a pointer to a struct")
-		}
-		configuration = config
-		return nil
 	}
 }
 

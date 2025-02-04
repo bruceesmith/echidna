@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"reflect"
@@ -316,8 +317,12 @@ func Test_before(t *testing.T) {
 	type args struct {
 		cmd  *cli.Command
 		line []string
+		cfg  Configurator
 	}
-	var cfg config
+	var (
+		cfg   config
+		fail1 vfail
+	)
 	tests := []struct {
 		name    string
 		args    args
@@ -342,8 +347,32 @@ func Test_before(t *testing.T) {
 					},
 				},
 				line: []string{"test", "--b", "--config", "testdata/test.yml"},
+				cfg:  &cfg,
 			},
 			wantErr: false,
+		},
+		{
+			name: "file-not-exit",
+			args: args{
+				cmd: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Before: before,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+						&cli.StringSliceFlag{
+							Name: "config",
+						},
+					},
+				},
+				line: []string{"test", "--b", "--config", "testdata/does-not-exist.yml"},
+				cfg:  &cfg,
+			},
+			wantErr: true,
 		},
 		{
 			name: "logging-error",
@@ -367,6 +396,30 @@ func Test_before(t *testing.T) {
 					},
 				},
 				line: []string{"test", "--b", "--config", "testdata/test.yml", "--log", "fred"},
+				cfg:  &cfg,
+			},
+			wantErr: true,
+		},
+		{
+			name: "validation-failed",
+			args: args{
+				cmd: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Before: before,
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+						&cli.StringSliceFlag{
+							Name: "config",
+						},
+					},
+				},
+				line: []string{"test", "--b", "--config", "testdata/test.yml"},
+				cfg:  &fail1,
 			},
 			wantErr: true,
 		},
@@ -390,7 +443,7 @@ func Test_before(t *testing.T) {
 
 func Test_configure(t *testing.T) {
 	type args struct {
-		config        Configuration
+		config        Configurator
 		configLoaders []configLoader
 	}
 	var (
@@ -461,6 +514,64 @@ func Test_configure(t *testing.T) {
 					t.Errorf("configure() error = %v, wantErr %v", err, tt.wantErr)
 				}
 			}
+		})
+	}
+}
+
+func TestConfiguration(t *testing.T) {
+	var (
+		cfg = config{I: 33}
+		s1  simple1
+		s2  simple2
+	)
+
+	type args struct {
+		config Configurator
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "ok",
+			args: args{
+				config: &cfg,
+			},
+			wantErr: false,
+		},
+		{
+			name: "not-a-pointer",
+			args: args{
+				config: s1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "not-a-struct",
+			args: args{
+				config: &s2,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var got Option
+			if got = Configuration(tt.args.config); got == nil {
+				t.Errorf("Configuration() = nil")
+			}
+			err := got()
+			if err != nil && !tt.wantErr {
+				t.Errorf("Configuration() err %v wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr {
+				if configuration != tt.args.config {
+					t.Errorf("Configuration() configuration %p not expected, want %p", configuration, tt.args.config)
+				}
+			}
+			configuration = nil
 		})
 	}
 }
@@ -951,7 +1062,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 				options: []Option{
-					WithConfiguration(&cfg),
+					Configuration(&cfg),
 				},
 				line: []string{"test", "--b"},
 			},
@@ -972,7 +1083,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 				options: []Option{
-					WithConfiguration(&cfg),
+					Configuration(&cfg),
 				},
 				line: []string{"test", "--b"},
 			},
@@ -1012,68 +1123,15 @@ func (i simple1) Validate() error {
 
 type simple2 int
 
+type vfail int
+
+func (v vfail) Validate() error {
+	return fmt.Errorf("validation failed")
+}
+
 func (i *simple2) Validate() error {
 	return nil
 }
-
-func TestWithConfiguration(t *testing.T) {
-	var (
-		cfg = config{I: 33}
-		s1  simple1
-		s2  simple2
-	)
-
-	type args struct {
-		config Configuration
-	}
-
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "ok",
-			args: args{
-				config: &cfg,
-			},
-			wantErr: false,
-		},
-		{
-			name: "not-a-pointer",
-			args: args{
-				config: s1,
-			},
-			wantErr: true,
-		},
-		{
-			name: "not-a-struct",
-			args: args{
-				config: &s2,
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			var got Option
-			if got = WithConfiguration(tt.args.config); got == nil {
-				t.Errorf("WithConfiguration() = nil")
-			}
-			err := got()
-			if err != nil && !tt.wantErr {
-				t.Errorf("WithConfiguration() err %v wantErr %v", err, tt.wantErr)
-			}
-			if !tt.wantErr {
-				if configuration != tt.args.config {
-					t.Errorf("WithConfiguration() configuration %p not expected, want %p", configuration, tt.args.config)
-				}
-			}
-			configuration = nil
-		})
-	}
-}
-
 func TestNoDefaultFlags(t *testing.T) {
 	tests := []struct {
 		name string
