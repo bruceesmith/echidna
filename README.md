@@ -5,6 +5,9 @@
 
 ![background image](echidna.png)
 
+WARNING: this library is under heavy development, hence the API is subject to
+change
+
 ### <a name="top"></a>
 ### <div align="center">Table of Contents</div>
 
@@ -588,7 +591,7 @@ GLOBAL OPTIONS:
   - [func Prefix\(prefix string\) FlagOption](<#Prefix>)
   - [func Validator\(val sflags.ValidateFunc\) FlagOption](<#Validator>)
 - [type Option](<#Option>)
-  - [func ConfigFlags\(configs \[\]Configurator, ops ...FlagOption\) Option](<#ConfigFlags>)
+  - [func ConfigFlags\(configs \[\]Configurator, command \*cli.Command, ops ...FlagOption\) Option](<#ConfigFlags>)
   - [func Configuration\(config Configurator\) Option](<#Configuration>)
   - [func NoDefaultFlags\(\) Option](<#NoDefaultFlags>)
   - [func NoJSON\(\) Option](<#NoJSON>)
@@ -711,7 +714,7 @@ type Option func(params ...any) error
 ### func [ConfigFlags](<https://github.com/bruceesmith/echidna/blob/main/program/config_flags.go#L131>)
 
 ```go
-func ConfigFlags(configs []Configurator, ops ...FlagOption) Option
+func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption) Option
 ```
 
 ConfigFlags creates and configures [program.Run](<#Run>) to have command line flags bound to the fields of one or more parts of a configuration struct

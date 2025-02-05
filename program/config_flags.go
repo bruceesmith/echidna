@@ -128,12 +128,8 @@ func Validator(val sflags.ValidateFunc) FlagOption {
 // ConfigFlags creates and configures [program.Run] to have
 // command line flags bound to the fields of one or more
 // parts of a configuration struct
-func ConfigFlags(configs []Configurator, ops ...FlagOption) Option {
-	return func(cmd ...any) error {
-		command, ok := cmd[0].(*cli.Command)
-		if !ok {
-			return fmt.Errorf("ConfigFlags parameter is not a *cli.Command")
-		}
+func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption) Option {
+	return func(_ ...any) error {
 		if len(configs) == 0 {
 			return fmt.Errorf("ConfigFlags called with zero configuration structs")
 		}

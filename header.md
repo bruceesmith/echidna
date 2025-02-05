@@ -5,6 +5,9 @@
 
 ![background image](echidna.png)
 
+WARNING: this library is under heavy development, hence the API is subject to
+change
+
 ### <a name="top"></a>
 ### <div align="center">Table of Contents</div>
 
