@@ -12,11 +12,10 @@ change
 ### <div align="center">Table of Contents</div>
 
 * [1. Overview](#overview)
-* [2. observable](#observable)
-* [3. program](#programme)
-* [4. set](#set)
-* [5. stack](#stack)
-* [6. terminator](#terminator)
+* [2. program](#programme)
+* [3. set](#set)
+* [4. stack](#stack)
+* [5. terminator](#terminator)
 
 # <a name="overview">1. Overview</a>
 
@@ -32,8 +31,6 @@ import "github.com/bruceesmith/echidna"
 ```
 
 Package echidna provides sub\-packages for building robust Go daemons and CLIs
-
-- observable is an implementation of the [Gang of Four](<https://en.wikipedia.org/wiki/Design_Patterns>) [observer](<https://en.wikipedia.org/wiki/Observer_pattern>) pattern, useful in event\-driven programs such as GUIs.
 
 - program builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
 
@@ -60,42 +57,6 @@ var (
     BuildDate string = `Filled in during the build`
 )
 ```
-
-# <a name="observable">3. observable</a>
-
-```go
-import "github.com/bruceesmith/echidna/observable"
-```
-
-Package observable is a simple generic implementation of the Observer design pattern.
-
-Observables are identified by a string name which must be unique across an application. Calling the [observable/Observe](<https://pkg.go.dev/observable/Observe/>) function both registers an observable by name and type, but also registers an observer by providing a notification function that is invoked when the value of the observable changes. Multiple observers can call [observable/Observe](<https://pkg.go.dev/observable/Observe/>) to register for notifications concerning an existing observable; in this case, notification functions are called in the order in which they were registered.
-
-To change the value of an observable, and to notify all observers by invoking their callback notification function, call the [observable/Set](<https://pkg.go.dev/observable/Set/>) function.
-
-## Index
-
-- [func Observe\[T any\]\(name string, cb func\(T\)\) error](<#Observe>)
-- [func Set\[T any\]\(name string, value T\) error](<#Set>)
-
-
-<a name="Observe"></a>
-## func [Observe](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L33>)
-
-```go
-func Observe[T any](name string, cb func(T)) error
-```
-
-Observe either registers a new observable, or adds another observer \(notification function\) to an existing observable
-
-<a name="Set"></a>
-## func [Set](<https://github.com/bruceesmith/echidna/blob/main/observable/observable.go#L50>)
-
-```go
-func Set[T any](name string, value T) error
-```
-
-Set notifies all observers that the value of an observable has changed by calling all registered notification functions
 
 # <a name="programme">4. program</a>
 

@@ -5,8 +5,6 @@
 /*
 Package echidna provides sub-packages for building robust Go daemons and CLIs
 
-  - observable is an implementation of the [Gang of Four] [observer] pattern, useful in event-driven programs such as GUIs.
-
   - program builds upon the Github packages [knadh/koanf] and [urfave/cli/v3] to make it extremely simple to use the
     features of those two excellent packages in concert.
 
@@ -26,8 +24,6 @@ Refer to the documentation for the individual packages for more details.
 [knadh/koanf]: https://github.com/knadh/koanf
 [set]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)
 [stack]: https://en.wikipedia.org/wiki/Stack_(abstract_data_type)
-[Gang of Four]: https://en.wikipedia.org/wiki/Design_Patterns
-[observer]: https://en.wikipedia.org/wiki/Observer_pattern
 */
 package echidna
 
