@@ -12,12 +12,11 @@ change
 ### <div align="center">Table of Contents</div>
 
 * [1. Overview](#overview)
-* [2. logger](#logger)
-* [3. observable](#observable)
-* [4. program](#programme)
-* [5. set](#set)
-* [6. stack](#stack)
-* [7. terminator](#terminator)
+* [2. observable](#observable)
+* [3. program](#programme)
+* [4. set](#set)
+* [5. stack](#stack)
+* [6. terminator](#terminator)
 
 # <a name="overview">1. Overview</a>
 

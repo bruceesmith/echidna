@@ -5,8 +5,6 @@
 /*
 Package echidna provides sub-packages for building robust Go daemons and CLIs
 
-  - logger supports logging and tracing based on the standard library package [log/slog].
-
   - observable is an implementation of the [Gang of Four] [observer] pattern, useful in event-driven programs such as GUIs.
 
   - program builds upon the Github packages [knadh/koanf] and [urfave/cli/v3] to make it extremely simple to use the
