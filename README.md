@@ -13,9 +13,8 @@ change
 
 * [1. Overview](#overview)
 * [2. program](#programme)
-* [3. set](#set)
-* [4. stack](#stack)
-* [5. terminator](#terminator)
+* [3. stack](#stack)
+* [4. terminator](#terminator)
 
 # <a name="overview">1. Overview</a>
 
@@ -33,8 +32,6 @@ import "github.com/bruceesmith/echidna"
 Package echidna provides sub\-packages for building robust Go daemons and CLIs
 
 - program builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
-
-- set defines goroutine\-safe methods for manipulating a generic [set](<https://en.wikipedia.org/wiki/Set_(abstract_data_type)>) data structure via the standard operations Add, Contains, Intersection, Members, String and Union.
 
 - stack defines goroutine\-safe methods for manipulating a generic [stack](<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)>) data structure via the standard operations IsEmpty, Peek, Pop, Push and Size.
 
@@ -467,162 +464,6 @@ func NoVerbose() Option
 ```
 
 
-
-# <a name="set">5. set</a>
-
-```go
-import "github.com/bruceesmith/echidna/set"
-```
-
-Package set is based on public code from John Arundel, goroutine safety added. It defines goroutine\-safe methods for manipulating a generic set data structure via the standard operations Add, Contains, Intersection, Members, String and Union
-
-URL: https://bitfieldconsulting.com/posts/generic-set
-
-## Index
-
-- [type Set](<#Set>)
-  - [func New\[E comparable\]\(vals ...E\) \*Set\[E\]](<#New>)
-  - [func \(s \*Set\[E\]\) Add\(vals ...E\)](<#Set[E].Add>)
-  - [func \(s \*Set\[E\]\) Clear\(\)](<#Set[E].Clear>)
-  - [func \(s \*Set\[E\]\) Contains\(v E\) bool](<#Set[E].Contains>)
-  - [func \(s \*Set\[E\]\) Delete\(vals ...E\)](<#Set[E].Delete>)
-  - [func \(s \*Set\[E\]\) Difference\(s2 \*Set\[E\]\) \*Set\[E\]](<#Set[E].Difference>)
-  - [func \(s \*Set\[E\]\) Disjoint\(s2 \*Set\[E\]\) bool](<#Set[E].Disjoint>)
-  - [func \(s \*Set\[E\]\) Empty\(\) bool](<#Set[E].Empty>)
-  - [func \(s \*Set\[E\]\) Intersection\(s2 \*Set\[E\]\) \*Set\[E\]](<#Set[E].Intersection>)
-  - [func \(s \*Set\[E\]\) Members\(\) \[\]E](<#Set[E].Members>)
-  - [func \(s \*Set\[E\]\) Size\(\) int](<#Set[E].Size>)
-  - [func \(s \*Set\[E\]\) String\(\) string](<#Set[E].String>)
-  - [func \(s \*Set\[E\]\) Union\(s2 \*Set\[E\]\) \*Set\[E\]](<#Set[E].Union>)
-
-
-<a name="Set"></a>
-## type [Set](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L20-L23>)
-
-Set is a generics implementation of the set data type
-
-```go
-type Set[E comparable] struct {
-    // contains filtered or unexported fields
-}
-```
-
-<a name="New"></a>
-### func [New](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L26>)
-
-```go
-func New[E comparable](vals ...E) *Set[E]
-```
-
-New creates a new Set
-
-<a name="Set[E].Add"></a>
-### func \(\*Set\[E\]\) [Add](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L37>)
-
-```go
-func (s *Set[E]) Add(vals ...E)
-```
-
-Add puts a new value into a Set
-
-<a name="Set[E].Clear"></a>
-### func \(\*Set\[E\]\) [Clear](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L46>)
-
-```go
-func (s *Set[E]) Clear()
-```
-
-Clear removes all values from a Set
-
-<a name="Set[E].Contains"></a>
-### func \(\*Set\[E\]\) [Contains](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L53>)
-
-```go
-func (s *Set[E]) Contains(v E) bool
-```
-
-Contains checks if a value is in the Set
-
-<a name="Set[E].Delete"></a>
-### func \(\*Set\[E\]\) [Delete](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L61>)
-
-```go
-func (s *Set[E]) Delete(vals ...E)
-```
-
-Delete remove values\(s\) from a Set
-
-<a name="Set[E].Difference"></a>
-### func \(\*Set\[E\]\) [Difference](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L70>)
-
-```go
-func (s *Set[E]) Difference(s2 *Set[E]) *Set[E]
-```
-
-Difference returns the set of values that are in s \(set A\) but not in s2 \(set B\) ... i.e. A \- B
-
-<a name="Set[E].Disjoint"></a>
-### func \(\*Set\[E\]\) [Disjoint](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L85>)
-
-```go
-func (s *Set[E]) Disjoint(s2 *Set[E]) bool
-```
-
-Disjoint returns true if the intersection of s with another set s2 is empty
-
-<a name="Set[E].Empty"></a>
-### func \(\*Set\[E\]\) [Empty](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L94>)
-
-```go
-func (s *Set[E]) Empty() bool
-```
-
-Empty returns true if the Set is empty
-
-<a name="Set[E].Intersection"></a>
-### func \(\*Set\[E\]\) [Intersection](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L101>)
-
-```go
-func (s *Set[E]) Intersection(s2 *Set[E]) *Set[E]
-```
-
-Intersection returns the logical intersection of 2 Sets
-
-<a name="Set[E].Members"></a>
-### func \(\*Set\[E\]\) [Members](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L116>)
-
-```go
-func (s *Set[E]) Members() []E
-```
-
-Members returns a slice of the values in a Set
-
-<a name="Set[E].Size"></a>
-### func \(\*Set\[E\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L127>)
-
-```go
-func (s *Set[E]) Size() int
-```
-
-Size returns the number of values in a Set
-
-<a name="Set[E].String"></a>
-### func \(\*Set\[E\]\) [String](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L134>)
-
-```go
-func (s *Set[E]) String() string
-```
-
-String returns a string representation of the Set members
-
-<a name="Set[E].Union"></a>
-### func \(\*Set\[E\]\) [Union](<https://github.com/bruceesmith/echidna/blob/main/set/set.go#L141>)
-
-```go
-func (s *Set[E]) Union(s2 *Set[E]) *Set[E]
-```
-
-Union returns the logical union of 2 Sets
 
 # <a name="stack">6. stack</a>
 

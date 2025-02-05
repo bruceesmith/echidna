@@ -8,9 +8,6 @@ Package echidna provides sub-packages for building robust Go daemons and CLIs
   - program builds upon the Github packages [knadh/koanf] and [urfave/cli/v3] to make it extremely simple to use the
     features of those two excellent packages in concert.
 
-  - set defines goroutine-safe methods for manipulating a generic [set] data structure via the standard operations Add, Contains,
-    Intersection, Members, String and Union.
-
   - stack defines goroutine-safe methods for manipulating a generic [stack] data structure via the standard operations IsEmpty,
     Peek, Pop, Push and Size.
 
@@ -22,8 +19,9 @@ Refer to the documentation for the individual packages for more details.
 
 [urfave/cli/v3]: https://github.com/urfave/cli
 [knadh/koanf]: https://github.com/knadh/koanf
-[set]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)
 [stack]: https://en.wikipedia.org/wiki/Stack_(abstract_data_type)
+
+[set]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)
 */
 package echidna
 

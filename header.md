@@ -13,9 +13,8 @@ change
 
 * [1. Overview](#overview)
 * [2. program](#programme)
-* [3. set](#set)
-* [4. stack](#stack)
-* [5. terminator](#terminator)
+* [3. stack](#stack)
+* [4. terminator](#terminator)
 
 # <a name="overview">1. Overview</a>
 
