@@ -5,6 +5,7 @@ go 1.23.5
 require (
 	github.com/bruceesmith/logger v1.0.1
 	github.com/bruceesmith/set v1.0.0
+	github.com/bruceesmith/terminator v1.0.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.10.0

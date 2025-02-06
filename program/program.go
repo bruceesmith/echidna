@@ -24,9 +24,9 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/bruceesmith/echidna/terminator"
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/set"
+	"github.com/bruceesmith/terminator"
 	"github.com/knadh/koanf"
 	kjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
