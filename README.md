@@ -13,7 +13,7 @@
 import "github.com/bruceesmith/echidna"
 ```
 
-Package echidna builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>), [urfave/cli/v3](<https://github.com/urfave/cli>), [urfave/sflags](<https://github.com/urfave/sflags>) to make it extremely simple to use the features of these excellent packages in concert.
+Package echidna builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>), [urfave/cli/v3](<https://github.com/urfave/cli>), [bruceesmith/sflags](<https://github.com/urfave/sflags>) to make it extremely simple to use the features of these excellent packages in concert.
 
 Every program using echidna will expose a standard set of command\-line flags \(\-\-json, \-\-log, \-\-trace, \-\-verbose\) in addition to the standard flags provided by urfave/cli/v3 \(\-\-help and \-\-version\).
 
