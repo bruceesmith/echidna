@@ -2,7 +2,7 @@
 // Use of this source code is governed by the MIT
 // License that can be found in the LICENSE file.
 
-package program
+package echidna
 
 import (
 	"fmt"
@@ -125,7 +125,7 @@ func Validator(val sflags.ValidateFunc) FlagOption {
 	}
 }
 
-// ConfigFlags creates and configures [program.Run] to have
+// ConfigFlags creates and configures [Run] to have
 // command line flags bound to the fields of one or more
 // parts of a configuration struct
 func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption) Option {

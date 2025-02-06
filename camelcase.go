@@ -1,4 +1,4 @@
-package program
+package echidna
 
 /*
 These functions are based upon functions from https://github.com/urfave/sflags.git and
