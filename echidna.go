@@ -56,7 +56,7 @@ type configLoader struct {
 }
 
 // Option is a functional parameter for Run()
-type Option func(params ...any) error
+type Option func() error
 
 // flagset is used to manage the default flags provided by Run()
 type flagset struct {
@@ -235,7 +235,7 @@ func configure(config Configurator, configLoaders []configLoader) (err error) {
 // Configuration is an Option helper to define a configuration structure
 // that will be populated from the sources given on a --config command-line flag
 func Configuration(config Configurator) Option {
-	return func(_ ...any) error {
+	return func() error {
 		if reflect.TypeOf(config).Kind() != reflect.Pointer {
 			return fmt.Errorf("argument to Configuration must be a pointer")
 		}
@@ -414,7 +414,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	var err error
 	// Apply all the Options
 	for _, opt := range options {
-		err := opt(command)
+		err := opt()
 		if err != nil {
 			logger.Error("Error executing Run() options", "error", err.Error())
 			os.Exit(1)
@@ -453,7 +453,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 // NoDefaultFlags is a convenience function which is equivalent to
 // calling all of NoJSON, NoLog, NoTrace, and NoVerbose
 func NoDefaultFlags() Option {
-	return func(_ ...any) error {
+	return func() error {
 		flags.Delete("json")
 		flags.Delete("log")
 		flags.Delete("trace")
@@ -462,28 +462,28 @@ func NoDefaultFlags() Option {
 	}
 }
 func NoJSON() Option {
-	return func(_ ...any) error {
+	return func() error {
 		flags.Delete("json")
 		return nil
 	}
 }
 
 func NoLog() Option {
-	return func(_ ...any) error {
+	return func() error {
 		flags.Delete("log")
 		return nil
 	}
 }
 
 func NoTrace() Option {
-	return func(_ ...any) error {
+	return func() error {
 		flags.Delete("trace")
 		return nil
 	}
 }
 
 func NoVerbose() Option {
-	return func(_ ...any) error {
+	return func() error {
 		flags.Delete("verbose")
 		return nil
 	}

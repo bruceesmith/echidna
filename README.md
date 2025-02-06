@@ -365,7 +365,7 @@ Validator is an optional function that will be called to to validate each struct
 Option is a functional parameter for Run\(\)
 
 ```go
-type Option func(params ...any) error
+type Option func() error
 ```
 
 <a name="ConfigFlags"></a>

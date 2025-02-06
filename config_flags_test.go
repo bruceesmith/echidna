@@ -466,7 +466,7 @@ func TestConfigFlags(t *testing.T) {
 	type args struct {
 		configs []Configurator
 		ops     []FlagOption
-		param   any
+		// param   any
 	}
 	var (
 		cfg config
@@ -482,7 +482,7 @@ func TestConfigFlags(t *testing.T) {
 			name: "ok",
 			args: args{
 				configs: []Configurator{&cfg},
-				param:   &cmd,
+				// param:   &cmd,
 			},
 			wantFlags: []string{"i"},
 			wantErr:   false,
@@ -491,7 +491,7 @@ func TestConfigFlags(t *testing.T) {
 			name: "expected-not-found",
 			args: args{
 				configs: []Configurator{&cfg},
-				param:   &cmd,
+				// param:   &cmd,
 			},
 			wantFlags: []string{"ii"},
 			wantErr:   true,
@@ -500,7 +500,7 @@ func TestConfigFlags(t *testing.T) {
 			name: "no-configs",
 			args: args{
 				configs: []Configurator{},
-				param:   &cmd,
+				// param:   &cmd,
 			},
 			wantErr: true,
 		},
@@ -508,7 +508,7 @@ func TestConfigFlags(t *testing.T) {
 			name: "not-a-command",
 			args: args{
 				configs: []Configurator{&cfg},
-				param:   cfg,
+				// param:   cfg,
 			},
 			wantErr: true,
 		},
@@ -517,7 +517,7 @@ func TestConfigFlags(t *testing.T) {
 			args: args{
 				configs: []Configurator{&cfg},
 				ops:     []FlagOption{FlagTag("fred")},
-				param:   &cmd,
+				// param:   &cmd,
 			},
 			wantErr: false,
 		},
@@ -525,7 +525,7 @@ func TestConfigFlags(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ConfigFlags(tt.args.configs, &cmd, tt.args.ops...)
-			err := got(tt.args.param)
+			err := got()
 			if err != nil {
 				if !tt.wantErr {
 					t.Errorf("ConfigFlags() = %v, want %v %v", err, tt.wantErr, reflect.TypeOf(cmd))

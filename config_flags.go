@@ -129,7 +129,7 @@ func Validator(val sflags.ValidateFunc) FlagOption {
 // command line flags bound to the fields of one or more
 // parts of a configuration struct
 func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption) Option {
-	return func(_ ...any) error {
+	return func() error {
 		if len(configs) == 0 {
 			return fmt.Errorf("ConfigFlags called with zero configuration structs")
 		}
