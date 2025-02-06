@@ -29,6 +29,8 @@ github.com/bruceesmith/logger v1.0.1 h1:xMc2/foAQTpRMItep5Ve+w1VAAnCaWT7k4z7zTRT
 github.com/bruceesmith/logger v1.0.1/go.mod h1:eMRlTeEYccXQ8ZfN5zXqoGEL9fitJEbtmyeLG5WdSYU=
 github.com/bruceesmith/set v1.0.0 h1:/I8X0RBDPZPeSBCjqRf4ab3dXF1wT3iRB2v1+aIer74=
 github.com/bruceesmith/set v1.0.0/go.mod h1:Qk1FhQekpL1HkqRYShpn8fLqA0xe9l/SpRGpzTDsRZM=
+github.com/bruceesmith/sflags v0.3.2 h1:J1tRUtRBwscJP5NGqYu2SWc/TO4rxMB2Bd/cI0udA5U=
+github.com/bruceesmith/sflags v0.3.2/go.mod h1:XBaPSh5f++8ExaRoJWUG4cEB80pLjS82Ng37RGVPPfg=
 github.com/bruceesmith/terminator v1.0.0 h1:CUIWFacYk6M7nlFA8zBAob/IaFCx3UhShHRdYBKh1OE=
 github.com/bruceesmith/terminator v1.0.0/go.mod h1:axtMcro3GXAh8LgqLMkB5jV/LPbuWWJjXy+T5i/PaQ8=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

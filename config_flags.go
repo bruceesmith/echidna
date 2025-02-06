@@ -10,8 +10,8 @@ import (
 
 	"github.com/jinzhu/copier"
 	"github.com/urfave/cli/v3"
-	"github.com/urfave/sflags"
-	"github.com/urfave/sflags/gen/gcli"
+	"github.com/bruceesmith/sflags"
+	"github.com/bruceesmith/sflags/gen/gcli"
 )
 
 // binder is the heart of the flag-binding mechanism:
@@ -31,7 +31,7 @@ import (
 //   - as a result, values for struct-bound fields are set in this order
 //     1. default value in the configuration struct
 //     2. value set in one of the configuration sources loaded by [knadh/koanf]
-//     3. environment variable configured by [urfave/sflags]
+//     3. environment variable configured by [bruceesmith/sflags]
 //     4. flag value from the command line
 type binder struct {
 	clone        Configurator

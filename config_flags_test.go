@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/urfave/cli/v3"
-	"github.com/urfave/sflags"
+	"github.com/bruceesmith/sflags"
 )
 
 func TestDescTag(t *testing.T) {

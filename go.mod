@@ -5,12 +5,12 @@ go 1.23.5
 require (
 	github.com/bruceesmith/logger v1.0.1
 	github.com/bruceesmith/set v1.0.0
+	github.com/bruceesmith/sflags v0.3.2
 	github.com/bruceesmith/terminator v1.0.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.0.0-beta1
-	github.com/urfave/sflags v0.0.0-00010101000000-000000000000
 
 )
 
@@ -29,5 +29,3 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/urfave/sflags => /home/bruce/Documents/sflags

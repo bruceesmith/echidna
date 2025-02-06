@@ -1,7 +1,7 @@
 package echidna
 
 /*
-These functions are based upon functions from https://github.com/urfave/sflags.git and
+These functions are based upon functions from https://github.com/bruceesmith/sflags.git and
 so reproduce the licensing of that package below. In turn, that package incorporates
 code from the https://github.com/fatih/camelcase package, so its license is also included
 

@@ -3,7 +3,7 @@
 // License that can be found in the LICENSE file.
 
 /*
-Package echidna builds upon the Github packages [knadh/koanf], [urfave/cli/v3], [urfave/sflags] to make it extremely simple to use the
+Package echidna builds upon the Github packages [knadh/koanf], [urfave/cli/v3], [bruceesmith/sflags] to make it extremely simple to use the
 features of these excellent packages in concert.
 
 Every program using echidna will expose a standard set of command-line flags (--json, --log, --trace, --verbose) in
@@ -17,7 +17,7 @@ bound either to the root command or to one or more child commands.
 
 [knadh/koanf]: https://github.com/knadh/koanf
 [urfave/cli/v3]: https://github.com/urfave/cli
-[urfave/sflags]: https://github.com/urfave/sflags
+[bruceesmith/sflags]: https://github.com/urfave/sflags
 */
 package echidna
 
@@ -174,7 +174,7 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 			return ctx, nil
 		} else {
 			// The command line has been parsed and values set for any provided flags. If
-			// any of the flags were generated from the configuration struct by the [urfave/sflags] package,
+			// any of the flags were generated from the configuration struct by the [bruceesmith/sflags] package,
 			// and any of these mapped flags were provided on the command line, then the associated
 			// fields in the configuration struct have been updated from the relevant command line flag(s).
 			//
