@@ -13,8 +13,7 @@ change
 
 * [1. Overview](#overview)
 * [2. program](#programme)
-* [3. stack](#stack)
-* [4. terminator](#terminator)
+* [3. terminator](#terminator)
 
 # <a name="overview">1. Overview</a>
 
@@ -32,8 +31,6 @@ import "github.com/bruceesmith/echidna"
 Package echidna provides sub\-packages for building robust Go daemons and CLIs
 
 - program builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>) and [urfave/cli/v3](<https://github.com/urfave/cli>) to make it extremely simple to use the features of those two excellent packages in concert.
-
-- stack defines goroutine\-safe methods for manipulating a generic [stack](<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)>) data structure via the standard operations IsEmpty, Peek, Pop, Push and Size.
 
 - terminator permits orderly stopping / shutdown of a group of goroutines via methods which mimic a [sync.WaitGroup](<https://pkg.go.dev/sync/#WaitGroup>). There is a default \[terminator.Terminator\] accessible through top level functions \(Add, Done, Wait and so on\) that call the corresponding Terminator methods.
 
@@ -464,80 +461,6 @@ func NoVerbose() Option
 ```
 
 
-
-# <a name="stack">6. stack</a>
-
-```go
-import "github.com/bruceesmith/echidna/stack"
-```
-
-Package stack defines goroutine\-safe methods for manipulating a generic stack data structure via the standard operations IsEmpty, Peek, Pop, Pushand Size.
-
-## Index
-
-- [type Stack](<#Stack>)
-  - [func \(s \*Stack\[T\]\) IsEmpty\(\) bool](<#Stack[T].IsEmpty>)
-  - [func \(s \*Stack\[T\]\) Peek\(\) \(value T, ok bool\)](<#Stack[T].Peek>)
-  - [func \(s \*Stack\[T\]\) Pop\(\) \(value T, ok bool\)](<#Stack[T].Pop>)
-  - [func \(s \*Stack\[T\]\) Push\(v T\)](<#Stack[T].Push>)
-  - [func \(s \*Stack\[T\]\) Size\(\) int](<#Stack[T].Size>)
-
-
-<a name="Stack"></a>
-## type [Stack](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L21-L25>)
-
-Stack is a Go stack implementation using a linked list It is go\-routine safe
-
-```go
-type Stack[T any] struct {
-    // contains filtered or unexported fields
-}
-```
-
-<a name="Stack[T].IsEmpty"></a>
-### func \(\*Stack\[T\]\) [IsEmpty](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L28>)
-
-```go
-func (s *Stack[T]) IsEmpty() bool
-```
-
-IsEmpty returns true if the stack has no elements
-
-<a name="Stack[T].Peek"></a>
-### func \(\*Stack\[T\]\) [Peek](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L36>)
-
-```go
-func (s *Stack[T]) Peek() (value T, ok bool)
-```
-
-Peek returns a copy of the top element off the stack
-
-<a name="Stack[T].Pop"></a>
-### func \(\*Stack\[T\]\) [Pop](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L50>)
-
-```go
-func (s *Stack[T]) Pop() (value T, ok bool)
-```
-
-Pop removes the top element and returns it
-
-<a name="Stack[T].Push"></a>
-### func \(\*Stack\[T\]\) [Push](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L67>)
-
-```go
-func (s *Stack[T]) Push(v T)
-```
-
-Push adds an element to the top of the stack
-
-<a name="Stack[T].Size"></a>
-### func \(\*Stack\[T\]\) [Size](<https://github.com/bruceesmith/echidna/blob/main/stack/stack.go#L81>)
-
-```go
-func (s *Stack[T]) Size() int
-```
-
-Size returns the number of elements on the stack
 
 # <a name="terminator">7. terminator</a>
 
