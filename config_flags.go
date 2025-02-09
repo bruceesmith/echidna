@@ -7,11 +7,12 @@ package echidna
 import (
 	"fmt"
 	"reflect"
+	"slices"
 
-	"github.com/jinzhu/copier"
-	"github.com/urfave/cli/v3"
 	"github.com/bruceesmith/sflags"
 	"github.com/bruceesmith/sflags/gen/gcli"
+	"github.com/jinzhu/copier"
+	"github.com/urfave/cli/v3"
 )
 
 // binder is the heart of the flag-binding mechanism:
@@ -153,7 +154,7 @@ func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption
 			if err != nil {
 				return fmt.Errorf("ConfigFlags() failed to create []cli.Flags for configuration %d: [%w]", i, err)
 			}
-			flags = expand(flags, len(flags)+len(flgs))
+			flags = slices.Grow(flags, len(flags)+len(flgs))
 			flags = append(flags, flgs...)
 		}
 		if len(flags) > 0 {

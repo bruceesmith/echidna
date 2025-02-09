@@ -31,6 +31,7 @@ import (
 	"os"
 	"reflect"
 	"runtime/debug"
+	"slices"
 	"strings"
 
 	"github.com/bruceesmith/logger"
@@ -156,7 +157,7 @@ func addCommand(cmd *cli.Command, command *cli.Command) {
 
 // addFlags adds one or more cli.Flag definitions to a command
 func addFlags(cmd *cli.Command, flags []cli.Flag) {
-	cmd.Flags = expand(cmd.Flags, len(flags))
+	cmd.Flags = slices.Grow(cmd.Flags, len(flags))
 	cmd.Flags = append(cmd.Flags, flags...)
 }
 
@@ -245,16 +246,6 @@ func Configuration(config Configurator) Option {
 		configuration = config
 		return nil
 	}
-}
-
-// expand grows a slice with either zero or one allocation
-func expand[T any](slice []T, size int) (v []T) {
-	if cap(slice) < len(slice)+size {
-		v = make([]T, len(slice), len(slice)+size)
-		copy(v, slice)
-		return v
-	}
-	return slice
 }
 
 // flag returns the string value of a command-line flag.

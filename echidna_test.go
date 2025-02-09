@@ -13,7 +13,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-	"unsafe"
 
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/set"
@@ -562,54 +561,6 @@ func TestConfiguration(t *testing.T) {
 				}
 			}
 			configuration = nil
-		})
-	}
-}
-
-func Test_expand(t *testing.T) {
-	type args struct {
-		slice []int
-		size  int
-	}
-	ar := [4]int{1, 2, 3, 4}
-	sl := ar[0:2]
-	tests := []struct {
-		name                 string
-		args                 args
-		wantCap              int
-		wantLen              int
-		wantDifferentAddress bool
-	}{
-		{
-			name: "will-expand",
-			args: args{
-				slice: []int{9, 8},
-				size:  2,
-			},
-			wantCap:              4,
-			wantLen:              2,
-			wantDifferentAddress: true,
-		},
-		{
-			name: "will-not-expand",
-			args: args{
-				slice: sl,
-				size:  1,
-			},
-			wantCap:              4,
-			wantLen:              2,
-			wantDifferentAddress: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotV := expand(tt.args.slice, tt.args.size)
-			if len(gotV) != tt.wantLen || cap(gotV) != tt.wantCap {
-				t.Errorf("expand() = %v, want len/cap %v/%v got len/cap %v/%v", gotV, tt.wantLen, tt.wantCap, len(gotV), cap(gotV))
-			}
-			if (unsafe.SliceData(tt.args.slice) != unsafe.SliceData(gotV)) != tt.wantDifferentAddress {
-				t.Errorf("expand() original %v expanded %v", unsafe.SliceData(tt.args.slice), unsafe.SliceData(gotV))
-			}
 		})
 	}
 }
