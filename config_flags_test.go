@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/urfave/cli/v3"
 	"github.com/bruceesmith/sflags"
+	"github.com/urfave/cli/v3"
 )
 
 func TestDescTag(t *testing.T) {
@@ -392,7 +392,6 @@ func Test_fieldMap(t *testing.T) {
 
 type config1 struct {
 	C1 config
-	s1 simple1
 }
 
 func Test_mapFields(t *testing.T) {
