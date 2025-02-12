@@ -351,6 +351,7 @@ func printVersion(cmd *cli.Command) {
 		Version   string `json:"version"`
 		GoVersion string `json:"go_version,omitempty"`
 		Commit    string `json:"commit,omitempty"`
+		Date      string `json:"date.omitempty"`
 	}
 	info := ver{
 		Name:    cmd.Name,
@@ -366,6 +367,7 @@ func printVersion(cmd *cli.Command) {
 					break
 				}
 			}
+			info.Date = BuildDate
 		}
 	}
 	if cmd.Bool("json") {
@@ -381,6 +383,9 @@ func printVersion(cmd *cli.Command) {
 			fmt.Fprintln(cmd.Writer, "Compiled with Go version", info.GoVersion)
 			if info.Commit != "" {
 				fmt.Fprintln(cmd.Writer, "Git commit", info.Commit)
+			}
+			if info.Date != `Filled in during the build` {
+				fmt.Fprintln(cmd.Writer, "Built", info.Date)
 			}
 		}
 	}
