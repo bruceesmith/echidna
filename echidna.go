@@ -56,6 +56,12 @@ type configLoader struct {
 	Options  []koanf.Option
 }
 
+type Loader struct {
+	Provider koanf.Provider
+	Parser   koanf.Parser
+	Match    func(string) bool
+}
+
 // Option is a functional parameter for Run()
 type Option func() error
 
@@ -452,6 +458,8 @@ func NoDefaultFlags() Option {
 		return nil
 	}
 }
+
+// NoJSON removes the default flag --json
 func NoJSON() Option {
 	return func() error {
 		flags.Delete("json")
@@ -459,6 +467,7 @@ func NoJSON() Option {
 	}
 }
 
+// NoLog removes the default flag --log
 func NoLog() Option {
 	return func() error {
 		flags.Delete("log")
@@ -466,6 +475,7 @@ func NoLog() Option {
 	}
 }
 
+// NoTrace removes the default flag --trace
 func NoTrace() Option {
 	return func() error {
 		flags.Delete("trace")
@@ -473,6 +483,7 @@ func NoTrace() Option {
 	}
 }
 
+// NoVerbose removes the default flag --verbose
 func NoVerbose() Option {
 	return func() error {
 		flags.Delete("verbose")
