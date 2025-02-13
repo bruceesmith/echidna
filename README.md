@@ -28,14 +28,17 @@ Command\-line flags bound to fields in the configuration are created by providin
 
 ```go
 // Include an Action function
-(&cli.Command{
+//
+var cmd = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		fmt.Println("hello")
 		return nil
 	},
 	Name:    "action",
 	Version: "1",
-}).Run(context.Background(), []string{"action"})
+}
+os.Args = []string{"action"}
+Run(context.Background(), cmd)
 // Output:
 // hello
 ```
@@ -55,14 +58,26 @@ hello
 
 
 ```go
-// The most basic example of urfave/cli/v3
-(&cli.Command{Name: "basic"}).Run(context.Background(), os.Args)
+// The most basic example
+//
+var cmd = &cli.Command{
+	Name: "basic",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		return nil
+	},
+}
+os.Args = []string{"basic", "h"}
+Run(context.Background(), cmd, NoDefaultFlags())
 // Output:
 // NAME:
 //    basic - A new cli application
 //
 // USAGE:
-//    basic [global options]
+//    basic [global options] [command [command options]]
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
 //
 // GLOBAL OPTIONS:
 //    --help, -h  show help
@@ -75,7 +90,11 @@ NAME:
    basic - A new cli application
 
 USAGE:
-   basic [global options]
+   basic [global options] [command [command options]]
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h  show help
@@ -84,16 +103,17 @@ GLOBAL OPTIONS:
 </p>
 </details>
 
-<details><summary>Example (Flag1)</summary>
+<details><summary>Example (Customflag)</summary>
 <p>
 
 
 
 ```go
 // Include a custom flag
-(&cli.Command{
+//
+var cmd = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		fmt.Println("hello")
+		fmt.Println("hello", cmd.Int("i"))
 		return nil
 	},
 	Flags: []cli.Flag{
@@ -102,30 +122,33 @@ GLOBAL OPTIONS:
 			Usage: "An integer",
 		},
 	},
-	Name:    "action",
+	Name:    "customflag",
 	Version: "1",
-}).Run(context.Background(), []string{"action"})
+}
+os.Args = []string{"action", "-i", "22"}
+Run(context.Background(), cmd, NoDefaultFlags())
 // Output:
-// hello
+// hello 22
 ```
 
 #### Output
 
 ```
-hello
+hello 22
 ```
 
 </p>
 </details>
 
-<details><summary>Example (Flag2)</summary>
+<details><summary>Example (Flagwithdefault)</summary>
 <p>
 
 
 
 ```go
-// Include a custom flag
-(&cli.Command{
+// Include a custom flag with a default value
+//
+var cmd = &cli.Command{
 	Action: func(ctx context.Context, cmd *cli.Command) error {
 		fmt.Println("hello")
 		return nil
@@ -137,18 +160,24 @@ hello
 			Value: 22,
 		},
 	},
-	Name:    "action",
+	Name:    "flagwithdefault",
 	Version: "1",
-}).Run(context.Background(), []string{"action", "--help"})
+}
+os.Args = []string{"flagwithdefault", "--help"}
+Run(context.Background(), cmd, NoDefaultFlags())
 // Output:
 // NAME:
-//    action - A new cli application
+//    flagwithdefault - A new cli application
 //
 // USAGE:
-//    action [global options]
+//    flagwithdefault [global options] [command [command options]]
 //
 // VERSION:
 //    1
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
 //
 // GLOBAL OPTIONS:
 //    -i value       An integer (default: 22)
@@ -160,13 +189,17 @@ hello
 
 ```
 NAME:
-   action - A new cli application
+   flagwithdefault - A new cli application
 
 USAGE:
-   action [global options]
+   flagwithdefault [global options] [command [command options]]
 
 VERSION:
    1
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    -i value       An integer (default: 22)
@@ -184,19 +217,29 @@ GLOBAL OPTIONS:
 
 ```go
 // Include a Version field in the Command
-(&cli.Command{
-	Name:    "version",
+//
+var cmd = &cli.Command{
+	Name: "version",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		return nil
+	},
 	Version: "1",
-}).Run(context.Background(), os.Args)
+}
+os.Args = []string{"basic", "h"}
+Run(context.Background(), cmd, NoDefaultFlags())
 // Output:
 // NAME:
 //    version - A new cli application
 //
 // USAGE:
-//    version [global options]
+//    version [global options] [command [command options]]
 //
 // VERSION:
 //    1
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
 //
 // GLOBAL OPTIONS:
 //    --help, -h     show help
@@ -210,10 +253,14 @@ NAME:
    version - A new cli application
 
 USAGE:
-   version [global options]
+   version [global options] [command [command options]]
 
 VERSION:
    1
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h     show help
