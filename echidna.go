@@ -38,9 +38,6 @@ import (
 	"github.com/bruceesmith/set"
 	"github.com/bruceesmith/terminator"
 	"github.com/knadh/koanf"
-	kjson "github.com/knadh/koanf/parsers/json"
-	"github.com/knadh/koanf/parsers/yaml"
-	"github.com/knadh/koanf/providers/file"
 	"github.com/urfave/cli/v3"
 )
 
@@ -57,7 +54,7 @@ type configLoader struct {
 }
 
 type Loader struct {
-	Provider koanf.Provider
+	Provider func(string) koanf.Provider
 	Parser   koanf.Parser
 	Match    func(string) bool
 }
@@ -94,6 +91,10 @@ func (fs flagset) Len() int {
 var (
 	// BuildDate is the timestamp for when this program was compiled
 	BuildDate string = `Filled in during the build`
+
+	// configloaders is a list of configuration loaders for koanf.Load()
+	// that were provided on the Configuration() call
+	configloaders []Loader
 
 	// Standard flags provided if no Option "No***" functions were called on Run() and
 	// if Configuration() was called on Run()
@@ -195,14 +196,14 @@ func before(ctx context.Context, cmd *cli.Command) (cctx context.Context, err er
 			}
 
 			// Build a list of configuration source providers
-			var configloaders []configLoader
-			configloaders, err = loaders(configs)
+			var theLoaders []configLoader
+			theLoaders, err = loaders(configs)
 			if err != nil {
 				return ctx, fmt.Errorf("config load error: [%w]", err)
 			}
 
 			// Read, parse, store the configuration
-			err = configure(configuration, configloaders)
+			err = configure(configuration, theLoaders)
 			if err != nil {
 				return ctx, fmt.Errorf("configuration loading failed: [%w]", err)
 			}
@@ -241,7 +242,7 @@ func configure(config Configurator, configLoaders []configLoader) (err error) {
 
 // Configuration is an Option helper to define a configuration structure
 // that will be populated from the sources given on a --config command-line flag
-func Configuration(config Configurator) Option {
+func Configuration(config Configurator, loaders []Loader) Option {
 	return func() error {
 		if reflect.TypeOf(config).Kind() != reflect.Pointer {
 			return fmt.Errorf("argument to Configuration must be a pointer")
@@ -249,7 +250,11 @@ func Configuration(config Configurator) Option {
 		if reflect.TypeOf(config).Elem().Kind() != reflect.Struct {
 			return fmt.Errorf("argument to Configuration must be a pointer to a struct")
 		}
+		if len(loaders) == 0 {
+			return fmt.Errorf("at least one configuration Loader is required")
+		}
 		configuration = config
+		configloaders = loaders
 		return nil
 	}
 }
@@ -298,16 +303,24 @@ func flag(cmd *cli.Command, name string) (value any, found bool) {
 func loaders(paths []string) ([]configLoader, error) {
 	loaders := make([]configLoader, len(paths))
 	for i, path := range paths {
-		loader := configLoader{
-			Provider: file.Provider(path),
+		var (
+			found  bool
+			loader configLoader
+		)
+	loop:
+		for _, cl := range configloaders {
+			if cl.Match(path) {
+				loader = configLoader{
+					Provider: cl.Provider(path),
+					Parser:   cl.Parser,
+					Options:  []koanf.Option{},
+				}
+				found = true
+				break loop
+			}
 		}
-		switch {
-		case strings.HasSuffix(path, "json"):
-			loader.Parser = kjson.Parser()
-		case strings.HasSuffix(path, "yml"), strings.HasSuffix(path, "yaml"):
-			loader.Parser = yaml.Parser()
-		default:
-			err := fmt.Errorf("no configuration parser defined for %s", path)
+		if !found {
+			err := fmt.Errorf("no configuration loader defined for %s", path)
 			return nil, err
 		}
 		loaders[i] = loader
@@ -319,7 +332,18 @@ func loaders(paths []string) ([]configLoader, error) {
 func logging(command *cli.Command) error {
 	// Change the logging format if JSON was requested
 	if command.Bool("json") {
-		logger.SetFormat(logger.JSON)
+		logger.Configure(
+			logger.ConfigSetting{
+				AppliesTo: logger.Norm,
+				Key:       logger.FormatSetting,
+				Value:     logger.JSON,
+			},
+			logger.ConfigSetting{
+				AppliesTo: logger.Tracy,
+				Key:       logger.FormatSetting,
+				Value:     logger.JSON,
+			},
+		)
 	}
 	// Set the logging level
 	value, found := flag(command, "log")
@@ -436,10 +460,22 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	command.Before = before
 	// Direct logging to the same io.Writers as the command
 	if command.Root().Writer != nil {
-		logger.RedirectStandard(command.Root().Writer)
+		logger.Configure(
+			logger.ConfigSetting{
+				AppliesTo: logger.Norm,
+				Key:       logger.DestinationSetting,
+				Value:     command.Root().Writer,
+			},
+		)
 	}
 	if command.Root().ErrWriter != nil {
-		logger.RedirectTrace(command.Root().ErrWriter)
+		logger.Configure(
+			logger.ConfigSetting{
+				AppliesTo: logger.Tracy,
+				Key:       logger.DestinationSetting,
+				Value:     command.Root().ErrWriter,
+			},
+		)
 	}
 
 	err = command.Run(ctx, os.Args)

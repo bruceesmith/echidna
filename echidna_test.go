@@ -12,6 +12,7 @@ import (
 	"log/slog"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/bruceesmith/logger"
@@ -416,6 +417,17 @@ func Test_before(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			configuration = &cfg
+			configloaders = []Loader{
+				{
+					Provider: func(s string) koanf.Provider {
+						return file.Provider(s)
+					},
+					Parser: yaml.Parser(),
+					Match: func(_ string) bool {
+						return true
+					},
+				},
+			}
 			buf := &bytes.Buffer{}
 			tt.args.cmd.Writer = buf
 			tt.args.cmd.ErrWriter = buf
@@ -515,7 +527,8 @@ func TestConfiguration(t *testing.T) {
 	)
 
 	type args struct {
-		config Configurator
+		config  Configurator
+		loaders []Loader
 	}
 
 	tests := []struct {
@@ -527,20 +540,41 @@ func TestConfiguration(t *testing.T) {
 			name: "ok",
 			args: args{
 				config: &cfg,
+				loaders: []Loader{
+					{
+						Provider: func(s string) koanf.Provider {
+							return file.Provider(s)
+						},
+						Parser: kjson.Parser(),
+						Match: func(_ string) bool {
+							return true
+						},
+					},
+				},
 			},
 			wantErr: false,
 		},
 		{
 			name: "not-a-pointer",
 			args: args{
-				config: s1,
+				config:  s1,
+				loaders: nil,
 			},
 			wantErr: true,
 		},
 		{
 			name: "not-a-struct",
 			args: args{
-				config: &s2,
+				config:  &s2,
+				loaders: nil,
+			},
+			wantErr: true,
+		},
+		{
+			name: "no-loaders",
+			args: args{
+				config:  &cfg,
+				loaders: nil,
 			},
 			wantErr: true,
 		},
@@ -548,7 +582,7 @@ func TestConfiguration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var got Option
-			if got = Configuration(tt.args.config); got == nil {
+			if got = Configuration(tt.args.config, tt.args.loaders); got == nil {
 				t.Errorf("Configuration() = nil")
 			}
 			err := got()
@@ -680,7 +714,8 @@ func Test_flag(t *testing.T) {
 
 func Test_loaders(t *testing.T) {
 	type args struct {
-		paths []string
+		paths   []string
+		loaders []Loader
 	}
 	tests := []struct {
 		name    string
@@ -694,6 +729,26 @@ func Test_loaders(t *testing.T) {
 				paths: []string{
 					"one.json",
 					"two.yml",
+				},
+				loaders: []Loader{
+					{
+						Provider: func(s string) koanf.Provider {
+							return file.Provider(s)
+						},
+						Parser: kjson.Parser(),
+						Match: func(s string) bool {
+							return strings.HasSuffix(s, ".json")
+						},
+					},
+					{
+						Provider: func(s string) koanf.Provider {
+							return file.Provider(s)
+						},
+						Parser: yaml.Parser(),
+						Match: func(s string) bool {
+							return strings.HasSuffix(s, ".yml")
+						},
+					},
 				},
 			},
 			want: []configLoader{
@@ -723,6 +778,7 @@ func Test_loaders(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			configloaders = tt.args.loaders
 			got, err := loaders(tt.args.paths)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("loaders() error = %v, wantErr %v", err, tt.wantErr)
@@ -957,20 +1013,59 @@ func Test_printVersion(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		flags = flagset{
+			all: map[string]cli.Flag{
+				"config": &cli.StringSliceFlag{
+					Name:    "config",
+					Aliases: []string{"cfg"},
+					Usage:   "comma-separated list of path(s) to configuration file(s)",
+				},
+				"json": &cli.BoolFlag{
+					Name:    "json",
+					Aliases: []string{"J"},
+					Usage:   "output should be JSON format",
+				},
+				"log": &logger.LogLevelFlag{
+					Name:  "log",
+					Usage: "logging level (slog values plus LevelTrace)",
+					Value: logger.LogLevel(logger.LevelTrace),
+				},
+				"trace": &cli.StringSliceFlag{
+					Name:  "trace",
+					Usage: `comma-separated list of trace areas ["all" for every possible area]`,
+				},
+				"verbose": &cli.BoolFlag{
+					Name:    "verbose",
+					Aliases: []string{"V"},
+					Usage:   "verbose output",
+				},
+			},
+			inuse: set.New(
+				"config",
+				"json",
+				"log",
+				"trace",
+				"verbose",
+			),
+		}
 		t.Run(tt.name, func(t *testing.T) {
 			args := []string{"test", "--version"}
+			flags.inuse = set.New[string]()
 			if tt.jason {
 				args = append(args, "--json")
+				flags.inuse.Add("json")
 			}
 			if tt.verbose {
 				args = append(args, "--verbose")
+				flags.inuse.Add("verbose")
 			}
-
-			flags.Delete("config")
+			fmt.Println("args", args)
+			// flags.Delete("config")
 			buf := &bytes.Buffer{}
 			tt.args.cmd.Writer = buf
 			addFlags(tt.args.cmd, flags.InUse())
 			cli.VersionPrinter = printVersion
+			fmt.Printf("cmd %p\n", tt.args.cmd)
 			tt.args.cmd.Run(context.Background(), args)
 		})
 	}
@@ -982,7 +1077,21 @@ func TestRun(t *testing.T) {
 		options []Option
 		line    []string
 	}
-	var cfg config
+	var (
+		cfg   config
+		loads []Loader
+	)
+	loads = []Loader{
+		{
+			Provider: func(s string) koanf.Provider {
+				return file.Provider(s)
+			},
+			Parser: yaml.Parser(),
+			Match: func(_ string) bool {
+				return true
+			},
+		},
+	}
 	tests := []struct {
 		name    string
 		args    args
@@ -1003,7 +1112,28 @@ func TestRun(t *testing.T) {
 					},
 				},
 				options: []Option{
-					Configuration(&cfg),
+					Configuration(&cfg, loads),
+				},
+				line: []string{"test", "--b"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "no-config",
+			args: args{
+				command: &cli.Command{
+					Name: "test",
+					Action: func(context.Context, *cli.Command) error {
+						return nil
+					},
+					Flags: []cli.Flag{
+						&cli.BoolFlag{
+							Name: "b",
+						},
+					},
+				},
+				options: []Option{
+					// Configuration(&cfg, loads),
 				},
 				line: []string{"test", "--b"},
 			},
@@ -1024,7 +1154,7 @@ func TestRun(t *testing.T) {
 					},
 				},
 				options: []Option{
-					Configuration(&cfg),
+					Configuration(&cfg, loads),
 				},
 				line: []string{"test", "--b"},
 			},
@@ -1034,8 +1164,10 @@ func TestRun(t *testing.T) {
 	before := flags.inuse.Members()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			configuration = nil
 			buf := &bytes.Buffer{}
 			tt.args.command.Writer = buf
+			tt.args.command.ErrWriter = buf
 			noOsExit = true
 			os.Args = tt.args.line
 			Run(context.Background(), tt.args.command, tt.args.options...)

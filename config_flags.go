@@ -228,6 +228,9 @@ func mapFields(v reflect.Value, prefix string, result *map[string]reflect.Value)
 // newFlagBinder creates a binder, the basis for associating and setting
 // configuration struct fields from command line flags
 func newFlagBinder(cfg Configurator) (b binder, err error) {
+	if cfg == nil {
+		return binder{}, fmt.Errorf("newFlagBinder requires a non-nil configuration")
+	}
 	b.clone = clone(cfg)
 	b.configFields, err = fieldMap(cfg)
 	if err != nil {

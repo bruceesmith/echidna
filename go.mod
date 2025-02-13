@@ -3,7 +3,7 @@ module github.com/bruceesmith/echidna
 go 1.23.5
 
 require (
-	github.com/bruceesmith/logger v1.0.1
+	github.com/bruceesmith/logger v1.1.0
 	github.com/bruceesmith/set v1.0.0
 	github.com/bruceesmith/sflags v0.3.2
 	github.com/bruceesmith/terminator v1.0.0
@@ -26,6 +26,6 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
-	golang.org/x/sys v0.29.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

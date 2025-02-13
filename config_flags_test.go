@@ -434,7 +434,10 @@ func Test_mapFields(t *testing.T) {
 }
 
 func Test_newFlagBinder(t *testing.T) {
-	var cfg config
+	var (
+		cfg config
+		s1  simple1
+	)
 	tests := []struct {
 		name    string
 		config  Configurator
@@ -445,6 +448,16 @@ func Test_newFlagBinder(t *testing.T) {
 			name:    "ok",
 			config:  &cfg,
 			wantErr: false,
+		},
+		{
+			name:    "nil-config",
+			config:  nil,
+			wantErr: true,
+		},
+		{
+			name:    "ptr-not-to-struct",
+			config:  &s1,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
