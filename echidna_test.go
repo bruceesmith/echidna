@@ -1059,13 +1059,10 @@ func Test_printVersion(t *testing.T) {
 				args = append(args, "--verbose")
 				flags.inuse.Add("verbose")
 			}
-			fmt.Println("args", args)
-			// flags.Delete("config")
 			buf := &bytes.Buffer{}
 			tt.args.cmd.Writer = buf
 			addFlags(tt.args.cmd, flags.InUse())
 			cli.VersionPrinter = printVersion
-			fmt.Printf("cmd %p\n", tt.args.cmd)
 			tt.args.cmd.Run(context.Background(), args)
 		})
 	}
