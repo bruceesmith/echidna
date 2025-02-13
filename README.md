@@ -21,255 +21,6 @@ If a configuration struct is provided to [Run](<#Run>) function by [Configuratio
 
 Command\-line flags bound to fields in the configuration are created by providing [ConfigFlags](<#ConfigFlags>) to [Run](<#Run>). These flags can be bound either to the root command or to one or more child commands.
 
-<details><summary>Example (Action)</summary>
-<p>
-
-
-
-```go
-// Include an Action function
-//
-var cmd = &cli.Command{
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		fmt.Println("hello")
-		return nil
-	},
-	Name:    "action",
-	Version: "1",
-}
-os.Args = []string{"action"}
-Run(context.Background(), cmd)
-// Output:
-// hello
-```
-
-#### Output
-
-```
-hello
-```
-
-</p>
-</details>
-
-<details><summary>Example (Basic)</summary>
-<p>
-
-
-
-```go
-// The most basic example
-//
-var cmd = &cli.Command{
-	Name: "basic",
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	},
-}
-os.Args = []string{"basic", "h"}
-Run(context.Background(), cmd, NoDefaultFlags())
-// Output:
-// NAME:
-//    basic - A new cli application
-//
-// USAGE:
-//    basic [global options] [command [command options]]
-//
-// COMMANDS:
-//    version, v  print the version
-//    help, h     Shows a list of commands or help for one command
-//
-// GLOBAL OPTIONS:
-//    --help, -h  show help
-```
-
-#### Output
-
-```
-NAME:
-   basic - A new cli application
-
-USAGE:
-   basic [global options] [command [command options]]
-
-COMMANDS:
-   version, v  print the version
-   help, h     Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --help, -h  show help
-```
-
-</p>
-</details>
-
-<details><summary>Example (Customflag)</summary>
-<p>
-
-
-
-```go
-// Include a custom flag
-//
-var cmd = &cli.Command{
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		fmt.Println("hello", cmd.Int("i"))
-		return nil
-	},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:  "i",
-			Usage: "An integer",
-		},
-	},
-	Name:    "customflag",
-	Version: "1",
-}
-os.Args = []string{"action", "-i", "22"}
-Run(context.Background(), cmd, NoDefaultFlags())
-// Output:
-// hello 22
-```
-
-#### Output
-
-```
-hello 22
-```
-
-</p>
-</details>
-
-<details><summary>Example (Flagwithdefault)</summary>
-<p>
-
-
-
-```go
-// Include a custom flag with a default value
-//
-var cmd = &cli.Command{
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		fmt.Println("hello")
-		return nil
-	},
-	Flags: []cli.Flag{
-		&cli.IntFlag{
-			Name:  "i",
-			Usage: "An integer",
-			Value: 22,
-		},
-	},
-	Name:    "flagwithdefault",
-	Version: "1",
-}
-os.Args = []string{"flagwithdefault", "--help"}
-Run(context.Background(), cmd, NoDefaultFlags())
-// Output:
-// NAME:
-//    flagwithdefault - A new cli application
-//
-// USAGE:
-//    flagwithdefault [global options] [command [command options]]
-//
-// VERSION:
-//    1
-//
-// COMMANDS:
-//    version, v  print the version
-//    help, h     Shows a list of commands or help for one command
-//
-// GLOBAL OPTIONS:
-//    -i value       An integer (default: 22)
-//    --help, -h     show help
-//    --version, -v  print the version
-```
-
-#### Output
-
-```
-NAME:
-   flagwithdefault - A new cli application
-
-USAGE:
-   flagwithdefault [global options] [command [command options]]
-
-VERSION:
-   1
-
-COMMANDS:
-   version, v  print the version
-   help, h     Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   -i value       An integer (default: 22)
-   --help, -h     show help
-   --version, -v  print the version
-```
-
-</p>
-</details>
-
-<details><summary>Example (Version)</summary>
-<p>
-
-
-
-```go
-// Include a Version field in the Command
-//
-var cmd = &cli.Command{
-	Name: "version",
-	Action: func(ctx context.Context, cmd *cli.Command) error {
-		return nil
-	},
-	Version: "1",
-}
-os.Args = []string{"basic", "h"}
-Run(context.Background(), cmd, NoDefaultFlags())
-// Output:
-// NAME:
-//    version - A new cli application
-//
-// USAGE:
-//    version [global options] [command [command options]]
-//
-// VERSION:
-//    1
-//
-// COMMANDS:
-//    version, v  print the version
-//    help, h     Shows a list of commands or help for one command
-//
-// GLOBAL OPTIONS:
-//    --help, -h     show help
-//    --version, -v  print the version
-```
-
-#### Output
-
-```
-NAME:
-   version - A new cli application
-
-USAGE:
-   version [global options] [command [command options]]
-
-VERSION:
-   1
-
-COMMANDS:
-   version, v  print the version
-   help, h     Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version
-```
-
-</p>
-</details>
-
 ## Index
 
 - [Variables](<#variables>)
@@ -307,13 +58,262 @@ var (
 ```
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L439>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L442>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
 ```
 
 Run is the primary external function of this library. It augments the cli.Command with default command\-line flags, hooks in handling for processing a configuration, runs the appropriate Action, calls the terminator to wait for goroutine cleanup
+
+<details><summary>Example (Action)</summary>
+<p>
+
+
+
+```go
+// Include an Action function
+//
+var cmd = &cli.Command{
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		fmt.Println("hello")
+		return nil
+	},
+	Name:    "runaction",
+	Version: "1",
+}
+os.Args = []string{"runaction"}
+Run(context.Background(), cmd)
+// Output:
+// hello
+```
+
+#### Output
+
+```
+hello
+```
+
+</p>
+</details>
+
+<details><summary>Example (Basic)</summary>
+<p>
+
+
+
+```go
+// The most basic example
+//
+var cmd = &cli.Command{
+	Name: "runbasic",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		return nil
+	},
+}
+os.Args = []string{"runbasic", "h"}
+Run(context.Background(), cmd, NoDefaultFlags())
+// Output:
+// NAME:
+//    runbasic - A new cli application
+//
+// USAGE:
+//    runbasic [global options] [command [command options]]
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
+//
+// GLOBAL OPTIONS:
+//    --help, -h  show help
+```
+
+#### Output
+
+```
+NAME:
+   runbasic - A new cli application
+
+USAGE:
+   runbasic [global options] [command [command options]]
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h  show help
+```
+
+</p>
+</details>
+
+<details><summary>Example (Customflag)</summary>
+<p>
+
+
+
+```go
+// Include a custom flag
+//
+var cmd = &cli.Command{
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		fmt.Println("hello", cmd.Int("i"))
+		return nil
+	},
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "i",
+			Usage: "An integer",
+		},
+	},
+	Name:    "runcustomflag",
+	Version: "1",
+}
+os.Args = []string{"runcustomflag", "-i", "22"}
+Run(context.Background(), cmd, NoDefaultFlags())
+// Output:
+// hello 22
+```
+
+#### Output
+
+```
+hello 22
+```
+
+</p>
+</details>
+
+<details><summary>Example (Flagwithdefault)</summary>
+<p>
+
+
+
+```go
+// Include a custom flag with a default value
+//
+var cmd = &cli.Command{
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		fmt.Println("hello")
+		return nil
+	},
+	Flags: []cli.Flag{
+		&cli.IntFlag{
+			Name:  "i",
+			Usage: "An integer",
+			Value: 22,
+		},
+	},
+	Name:    "runflagwithdefault",
+	Version: "1",
+}
+os.Args = []string{"runflagwithdefault", "--help"}
+Run(context.Background(), cmd, NoDefaultFlags())
+// Output:
+// NAME:
+//    runflagwithdefault - A new cli application
+//
+// USAGE:
+//    runflagwithdefault [global options] [command [command options]]
+//
+// VERSION:
+//    1
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
+//
+// GLOBAL OPTIONS:
+//    -i value       An integer (default: 22)
+//    --help, -h     show help
+//    --version, -v  print the version
+```
+
+#### Output
+
+```
+NAME:
+   runflagwithdefault - A new cli application
+
+USAGE:
+   runflagwithdefault [global options] [command [command options]]
+
+VERSION:
+   1
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   -i value       An integer (default: 22)
+   --help, -h     show help
+   --version, -v  print the version
+```
+
+</p>
+</details>
+
+<details><summary>Example (Version)</summary>
+<p>
+
+
+
+```go
+// Include a Version field in the Command
+//
+var cmd = &cli.Command{
+	Name: "runversion",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		return nil
+	},
+	Version: "1",
+}
+os.Args = []string{"runversion", "h"}
+Run(context.Background(), cmd, NoDefaultFlags())
+// Output:
+// NAME:
+//    runversion - A new cli application
+//
+// USAGE:
+//    runversion [global options] [command [command options]]
+//
+// VERSION:
+//    1
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
+//
+// GLOBAL OPTIONS:
+//    --help, -h     show help
+//    --version, -v  print the version
+```
+
+#### Output
+
+```
+NAME:
+   runversion - A new cli application
+
+USAGE:
+   runversion [global options] [command [command options]]
+
+VERSION:
+   1
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version
+```
+
+</p>
+</details>
 
 <a name="Configurator"></a>
 ## type [Configurator](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L45-L47>)
@@ -408,9 +408,9 @@ func Validator(val sflags.ValidateFunc) FlagOption
 Validator is an optional function that will be called to to validate each struct\-field bound flag
 
 <a name="Loader"></a>
-## type [Loader](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L56-L60>)
+## type [Loader](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L59-L63>)
 
-
+Loader is a parameter to [Configuration](<#Configuration>) which determines how configuration sources are loaded into the confguration struct
 
 ```go
 type Loader struct {
@@ -421,7 +421,7 @@ type Loader struct {
 ```
 
 <a name="Option"></a>
-## type [Option](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L63>)
+## type [Option](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L66>)
 
 Option is a functional parameter for Run\(\)
 
@@ -438,8 +438,162 @@ func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption
 
 ConfigFlags creates and configures [Run](<#Run>) to have command line flags bound to the fields of one or more parts of a configuration struct
 
+<details><summary>Example (Basic Flag Override)</summary>
+<p>
+
+
+
+```go
+// Flags bound to fields in a configuration struct. The flag value
+// overrides the field's value obtained from reading the  YAML
+// configuration file
+//
+// test.yml simply contains:
+// i: 33
+//
+var (
+	cfg configExample
+	cmd = &cli.Command{
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			fmt.Println("config is", cfg)
+			return nil
+		},
+		Name:    "basicflagoverride",
+		Version: "1",
+	}
+	loaders = []Loader{
+		{
+			Provider: func(s string) koanf.Provider {
+				return file.Provider(s)
+			},
+			Parser: yaml.Parser(),
+			Match: func(s string) bool {
+				return strings.HasSuffix(s, ".yml")
+			},
+		},
+	}
+)
+os.Args = []string{"basicflagoverride", "-i", "77", "--config", "testdata/test.yml"}
+Run(
+	context.Background(),
+	cmd,
+	Configuration(
+		&cfg,
+		loaders,
+	),
+	ConfigFlags(
+		[]Configurator{&cfg},
+		cmd,
+	),
+	NoDefaultFlags(),
+)
+// Output:
+// config is {77}
+```
+
+#### Output
+
+```
+config is {77}
+```
+
+</p>
+</details>
+
+<details><summary>Example (Basic Help)</summary>
+<p>
+
+
+
+```go
+// Help for flags bound to fields in a configuration struct. This
+// shows the flag "--i" bound to cfg.I
+//
+var (
+	cfg configExample
+	cmd = &cli.Command{
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			fmt.Println("config is", cfg)
+			return nil
+		},
+		Name:    "basichelp",
+		Version: "1",
+	}
+	loaders = []Loader{
+		{
+			Provider: func(s string) koanf.Provider {
+				return file.Provider(s)
+			},
+			Parser: yaml.Parser(),
+			Match: func(s string) bool {
+				return strings.HasSuffix(s, ".yml")
+			},
+		},
+	}
+)
+os.Args = []string{"basichelp", "--help"}
+Run(
+	context.Background(),
+	cmd,
+	Configuration(
+		&cfg,
+		loaders,
+	),
+	ConfigFlags(
+		[]Configurator{&cfg},
+		cmd,
+	),
+	NoDefaultFlags(),
+)
+// Output:
+// NAME:
+//    basichelp - A new cli application
+//
+// USAGE:
+//    basichelp [global options] [command [command options]]
+//
+// VERSION:
+//    1
+//
+// COMMANDS:
+//    version, v  print the version
+//    help, h     Shows a list of commands or help for one command
+//
+// GLOBAL OPTIONS:
+//    -i value                                                     (default: 0) [$I]
+//    --config value, --cfg value [ --config value, --cfg value ]  comma-separated list of path(s) to configuration file(s)
+//    --help, -h                                                   show help
+//    --version, -v                                                print the version
+```
+
+#### Output
+
+```
+NAME:
+   basichelp - A new cli application
+
+USAGE:
+   basichelp [global options] [command [command options]]
+
+VERSION:
+   1
+
+COMMANDS:
+   version, v  print the version
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   -i value                                                     (default: 0) [$I]
+   --config value, --cfg value [ --config value, --cfg value ]  comma-separated list of path(s) to configuration file(s)
+   --help, -h                                                   show help
+   --version, -v                                                print the version
+```
+
+</p>
+</details>
+
 <a name="Configuration"></a>
-### func [Configuration](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L245>)
+### func [Configuration](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L248>)
 
 ```go
 func Configuration(config Configurator, loaders []Loader) Option
@@ -447,8 +601,59 @@ func Configuration(config Configurator, loaders []Loader) Option
 
 Configuration is an Option helper to define a configuration structure that will be populated from the sources given on a \-\-config command\-line flag
 
+<details><summary>Example (Basic)</summary>
+<p>
+
+
+
+```go
+var (
+	cfg configExample
+	cmd = &cli.Command{
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			fmt.Println("config is", cfg)
+			return nil
+		},
+		Name:    "configbasic",
+		Version: "1",
+	}
+	loaders = []Loader{
+		{
+			Provider: func(s string) koanf.Provider {
+				return file.Provider(s)
+			},
+			Parser: yaml.Parser(),
+			Match: func(s string) bool {
+				return strings.HasSuffix(s, ".yml")
+			},
+		},
+	}
+)
+os.Args = []string{"configbasic", "--config", "testdata/test.yml"}
+Run(
+	context.Background(),
+	cmd,
+	Configuration(
+		&cfg,
+		loaders,
+	),
+	NoDefaultFlags(),
+)
+// Output:
+// config is {33}
+```
+
+#### Output
+
+```
+config is {33}
+```
+
+</p>
+</details>
+
 <a name="NoDefaultFlags"></a>
-### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L493>)
+### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L504>)
 
 ```go
 func NoDefaultFlags() Option
@@ -457,7 +662,7 @@ func NoDefaultFlags() Option
 NoDefaultFlags is a convenience function which is equivalent to calling all of NoJSON, NoLog, NoTrace, and NoVerbose
 
 <a name="NoJSON"></a>
-### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L504>)
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L515>)
 
 ```go
 func NoJSON() Option
@@ -466,7 +671,7 @@ func NoJSON() Option
 NoJSON removes the default flag \-\-json
 
 <a name="NoLog"></a>
-### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L512>)
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L523>)
 
 ```go
 func NoLog() Option
@@ -475,7 +680,7 @@ func NoLog() Option
 NoLog removes the default flag \-\-log
 
 <a name="NoTrace"></a>
-### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L520>)
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L531>)
 
 ```go
 func NoTrace() Option
@@ -484,7 +689,7 @@ func NoTrace() Option
 NoTrace removes the default flag \-\-trace
 
 <a name="NoVerbose"></a>
-### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L528>)
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L539>)
 
 ```go
 func NoVerbose() Option

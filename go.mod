@@ -1,6 +1,6 @@
 module github.com/bruceesmith/echidna
 
-go 1.23.5
+go 1.24.0
 
 require (
 	github.com/bruceesmith/logger v1.1.0

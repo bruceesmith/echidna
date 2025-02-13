@@ -1098,7 +1098,7 @@ func TestRun(t *testing.T) {
 			name: "ok",
 			args: args{
 				command: &cli.Command{
-					Name: "test",
+					Name: "testrunok",
 					Action: func(context.Context, *cli.Command) error {
 						return nil
 					},
@@ -1111,7 +1111,7 @@ func TestRun(t *testing.T) {
 				options: []Option{
 					Configuration(&cfg, loads),
 				},
-				line: []string{"test", "--b"},
+				line: []string{"testrunok", "--b"},
 			},
 			wantErr: false,
 		},
@@ -1119,7 +1119,7 @@ func TestRun(t *testing.T) {
 			name: "no-config",
 			args: args{
 				command: &cli.Command{
-					Name: "test",
+					Name: "testrunnoconfig",
 					Action: func(context.Context, *cli.Command) error {
 						return nil
 					},
@@ -1132,7 +1132,7 @@ func TestRun(t *testing.T) {
 				options: []Option{
 					// Configuration(&cfg, loads),
 				},
-				line: []string{"test", "--b"},
+				line: []string{"testrunnoconfig", "--b"},
 			},
 			wantErr: false,
 		},
@@ -1140,7 +1140,7 @@ func TestRun(t *testing.T) {
 			name: "error",
 			args: args{
 				command: &cli.Command{
-					Name: "test",
+					Name: "testrunerror",
 					Action: func(context.Context, *cli.Command) error {
 						return errors.New("Run() error")
 					},
@@ -1153,7 +1153,7 @@ func TestRun(t *testing.T) {
 				options: []Option{
 					Configuration(&cfg, loads),
 				},
-				line: []string{"test", "--b"},
+				line: []string{"testrunerror", "--b"},
 			},
 			wantErr: true,
 		},

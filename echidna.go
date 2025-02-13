@@ -53,6 +53,9 @@ type configLoader struct {
 	Options  []koanf.Option
 }
 
+// Loader is a parameter to [Configuration] which determines
+// how configuration sources are loaded into the confguration
+// struct
 type Loader struct {
 	Provider func(string) koanf.Provider
 	Parser   koanf.Parser
@@ -438,6 +441,14 @@ func readConfig(k *koanf.Koanf, sources ...configLoader) error {
 // terminator to wait for goroutine cleanup
 func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	var err error
+	flags.inuse = set.New(
+		"config",
+		"json",
+		"log",
+		"trace",
+		"verbose",
+	) // Required for the ExampleConfig* tests to pass
+
 	// Apply all the Options
 	for _, opt := range options {
 		err := opt()
@@ -477,8 +488,8 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 			},
 		)
 	}
-
 	err = command.Run(ctx, os.Args)
+	configuration = nil // Required for the ExampleConfig* tests to pass
 	terminator.Wait()
 	if err != nil && !strings.Contains(err.Error(), "flag provided but not defined") {
 		logger.Error("Error performing command", "error", err.Error(), "command", command.FullName())

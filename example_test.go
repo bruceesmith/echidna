@@ -8,27 +8,37 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/file"
 	"github.com/urfave/cli/v3"
 )
 
-func Example_basic() {
+type configExample struct {
+	I int
+}
+
+func (c *configExample) Validate() error { return nil }
+
+func ExampleRun_basic() {
 	// The most basic example
 	//
 	var cmd = &cli.Command{
-		Name: "basic",
+		Name: "runbasic",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return nil
 		},
 	}
-	os.Args = []string{"basic", "h"}
+	os.Args = []string{"runbasic", "h"}
 	Run(context.Background(), cmd, NoDefaultFlags())
 	// Output:
 	// NAME:
-	//    basic - A new cli application
+	//    runbasic - A new cli application
 	//
 	// USAGE:
-	//    basic [global options] [command [command options]]
+	//    runbasic [global options] [command [command options]]
 	//
 	// COMMANDS:
 	//    version, v  print the version
@@ -38,24 +48,24 @@ func Example_basic() {
 	//    --help, -h  show help
 }
 
-func Example_version() {
+func ExampleRun_version() {
 	// Include a Version field in the Command
 	//
 	var cmd = &cli.Command{
-		Name: "version",
+		Name: "runversion",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return nil
 		},
 		Version: "1",
 	}
-	os.Args = []string{"basic", "h"}
+	os.Args = []string{"runversion", "h"}
 	Run(context.Background(), cmd, NoDefaultFlags())
 	// Output:
 	// NAME:
-	//    version - A new cli application
+	//    runversion - A new cli application
 	//
 	// USAGE:
-	//    version [global options] [command [command options]]
+	//    runversion [global options] [command [command options]]
 	//
 	// VERSION:
 	//    1
@@ -69,7 +79,7 @@ func Example_version() {
 	//    --version, -v  print the version
 }
 
-func Example_action() {
+func ExampleRun_action() {
 	// Include an Action function
 	//
 	var cmd = &cli.Command{
@@ -77,16 +87,16 @@ func Example_action() {
 			fmt.Println("hello")
 			return nil
 		},
-		Name:    "action",
+		Name:    "runaction",
 		Version: "1",
 	}
-	os.Args = []string{"action"}
+	os.Args = []string{"runaction"}
 	Run(context.Background(), cmd)
 	// Output:
 	// hello
 }
 
-func Example_customflag() {
+func ExampleRun_customflag() {
 	// Include a custom flag
 	//
 	var cmd = &cli.Command{
@@ -100,16 +110,16 @@ func Example_customflag() {
 				Usage: "An integer",
 			},
 		},
-		Name:    "customflag",
+		Name:    "runcustomflag",
 		Version: "1",
 	}
-	os.Args = []string{"action", "-i", "22"}
+	os.Args = []string{"runcustomflag", "-i", "22"}
 	Run(context.Background(), cmd, NoDefaultFlags())
 	// Output:
 	// hello 22
 }
 
-func Example_flagwithdefault() {
+func ExampleRun_flagwithdefault() {
 	// Include a custom flag with a default value
 	//
 	var cmd = &cli.Command{
@@ -124,17 +134,17 @@ func Example_flagwithdefault() {
 				Value: 22,
 			},
 		},
-		Name:    "flagwithdefault",
+		Name:    "runflagwithdefault",
 		Version: "1",
 	}
-	os.Args = []string{"flagwithdefault", "--help"}
+	os.Args = []string{"runflagwithdefault", "--help"}
 	Run(context.Background(), cmd, NoDefaultFlags())
 	// Output:
 	// NAME:
-	//    flagwithdefault - A new cli application
+	//    runflagwithdefault - A new cli application
 	//
 	// USAGE:
-	//    flagwithdefault [global options] [command [command options]]
+	//    runflagwithdefault [global options] [command [command options]]
 	//
 	// VERSION:
 	//    1
@@ -147,4 +157,150 @@ func Example_flagwithdefault() {
 	//    -i value       An integer (default: 22)
 	//    --help, -h     show help
 	//    --version, -v  print the version
+}
+
+func ExampleConfiguration_basic() {
+	var (
+		cfg configExample
+		cmd = &cli.Command{
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				fmt.Println("config is", cfg)
+				return nil
+			},
+			Name:    "configbasic",
+			Version: "1",
+		}
+		loaders = []Loader{
+			{
+				Provider: func(s string) koanf.Provider {
+					return file.Provider(s)
+				},
+				Parser: yaml.Parser(),
+				Match: func(s string) bool {
+					return strings.HasSuffix(s, ".yml")
+				},
+			},
+		}
+	)
+	os.Args = []string{"configbasic", "--config", "testdata/test.yml"}
+	Run(
+		context.Background(),
+		cmd,
+		Configuration(
+			&cfg,
+			loaders,
+		),
+		NoDefaultFlags(),
+	)
+	// Output:
+	// config is {33}
+}
+
+func ExampleConfigFlags_basicHelp() {
+	// Help for flags bound to fields in a configuration struct. This
+	// shows the flag "--i" bound to cfg.I
+	//
+	var (
+		cfg configExample
+		cmd = &cli.Command{
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				fmt.Println("config is", cfg)
+				return nil
+			},
+			Name:    "basichelp",
+			Version: "1",
+		}
+		loaders = []Loader{
+			{
+				Provider: func(s string) koanf.Provider {
+					return file.Provider(s)
+				},
+				Parser: yaml.Parser(),
+				Match: func(s string) bool {
+					return strings.HasSuffix(s, ".yml")
+				},
+			},
+		}
+	)
+	os.Args = []string{"basichelp", "--help"}
+	Run(
+		context.Background(),
+		cmd,
+		Configuration(
+			&cfg,
+			loaders,
+		),
+		ConfigFlags(
+			[]Configurator{&cfg},
+			cmd,
+		),
+		NoDefaultFlags(),
+	)
+	// Output:
+	// NAME:
+	//    basichelp - A new cli application
+	//
+	// USAGE:
+	//    basichelp [global options] [command [command options]]
+	//
+	// VERSION:
+	//    1
+	//
+	// COMMANDS:
+	//    version, v  print the version
+	//    help, h     Shows a list of commands or help for one command
+	//
+	// GLOBAL OPTIONS:
+	//    -i value                                                     (default: 0) [$I]
+	//    --config value, --cfg value [ --config value, --cfg value ]  comma-separated list of path(s) to configuration file(s)
+	//    --help, -h                                                   show help
+	//    --version, -v                                                print the version
+}
+
+func ExampleConfigFlags_basicFlagOverride() {
+	// Flags bound to fields in a configuration struct. The flag value
+	// overrides the field's value obtained from reading the  YAML
+	// configuration file
+	//
+	// test.yml simply contains:
+	// i: 33
+	//
+	var (
+		cfg configExample
+		cmd = &cli.Command{
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				fmt.Println("config is", cfg)
+				return nil
+			},
+			Name:    "basicflagoverride",
+			Version: "1",
+		}
+		loaders = []Loader{
+			{
+				Provider: func(s string) koanf.Provider {
+					return file.Provider(s)
+				},
+				Parser: yaml.Parser(),
+				Match: func(s string) bool {
+					return strings.HasSuffix(s, ".yml")
+				},
+			},
+		}
+	)
+	os.Args = []string{"basicflagoverride", "-i", "77", "--config", "testdata/test.yml"}
+	Run(
+		context.Background(),
+		cmd,
+		Configuration(
+			&cfg,
+			loaders,
+		),
+		ConfigFlags(
+			[]Configurator{&cfg},
+			cmd,
+		),
+		NoDefaultFlags(),
+	)
+	// Output:
+	// config is {77}
 }
