@@ -378,7 +378,7 @@ func printVersion(cmd *cli.Command) {
 		Version   string `json:"version"`
 		GoVersion string `json:"go_version,omitempty"`
 		Commit    string `json:"commit,omitempty"`
-		Date      string `json:"date.omitempty"`
+		Date      string `json:"date,omitempty"`
 	}
 	info := ver{
 		Name:    cmd.Name,
