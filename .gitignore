@@ -29,3 +29,6 @@ settings.json
 
 # IDX
 .idx/dev.nix
+
+# Code
+.vscode/
