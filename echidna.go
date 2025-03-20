@@ -35,8 +35,8 @@ import (
 	"strings"
 
 	"github.com/bruceesmith/logger"
-	"github.com/bruceesmith/set"
 	"github.com/bruceesmith/terminator"
+	set "github.com/deckarep/golang-set/v2"
 	"github.com/knadh/koanf"
 	"github.com/urfave/cli/v3"
 )
@@ -68,27 +68,27 @@ type Option func() error
 // flagset is used to manage the default flags provided by Run()
 type flagset struct {
 	all   map[string]cli.Flag
-	inuse *set.Set[string]
+	inuse set.Set[string]
 }
 
 // Delete removes one of the default flags
 func (fs flagset) Delete(name string) {
-	fs.inuse.Delete(name)
+	fs.inuse.Remove(name)
 }
 
 // InUse returns a slice of the flags that remain in the standard
 // flag set after all Options that remove a flag have been executed
 func (fs flagset) InUse() []cli.Flag {
-	val := make([]cli.Flag, fs.inuse.Size())
-	for k, v := range fs.inuse.Members() {
-		val[k] = fs.all[v]
+	val := make([]cli.Flag, 0, fs.inuse.Cardinality())
+	for v := range set.Elements(fs.inuse) {
+		val = append(val, fs.all[v])
 	}
 	return val
 }
 
 // Len is the number of default flags that will be added to the command line
 func (fs flagset) Len() int {
-	return fs.inuse.Size()
+	return fs.inuse.Cardinality()
 }
 
 var (
@@ -128,7 +128,7 @@ var (
 				Usage:   "verbose output",
 			},
 		},
-		inuse: set.New(
+		inuse: set.NewSet(
 			"config",
 			"json",
 			"log",
@@ -441,7 +441,7 @@ func readConfig(k *koanf.Koanf, sources ...configLoader) error {
 // terminator to wait for goroutine cleanup
 func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	var err error
-	flags.inuse = set.New(
+	flags.inuse = set.NewSet(
 		"config",
 		"json",
 		"log",

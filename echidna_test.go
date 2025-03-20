@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/bruceesmith/logger"
-	"github.com/bruceesmith/set"
+	set "github.com/deckarep/golang-set/v2"
 	"github.com/knadh/koanf"
 	kjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -28,7 +28,7 @@ import (
 func Test_flagset_Delete(t *testing.T) {
 	type fields struct {
 		all   map[string]cli.Flag
-		inuse *set.Set[string]
+		inuse set.Set[string]
 	}
 	type args struct {
 		name string
@@ -49,7 +49,7 @@ func Test_flagset_Delete(t *testing.T) {
 					"two":   &two,
 					"three": &three,
 				},
-				inuse: set.New("one", "two", "three"),
+				inuse: set.NewSet("one", "two", "three"),
 			},
 			args: args{
 				name: "three",
@@ -63,7 +63,7 @@ func Test_flagset_Delete(t *testing.T) {
 					"two":   &two,
 					"three": &three,
 				},
-				inuse: set.New("one", "two", "three"),
+				inuse: set.NewSet("one", "two", "three"),
 			},
 			args: args{
 				name: "four",
@@ -87,7 +87,7 @@ func Test_flagset_Delete(t *testing.T) {
 func Test_flagset_InUse(t *testing.T) {
 	type fields struct {
 		all   map[string]cli.Flag
-		inuse *set.Set[string]
+		inuse set.Set[string]
 	}
 	one := cli.BoolFlag{Name: "one"}
 	two := cli.BoolFlag{Name: "two"}
@@ -106,7 +106,7 @@ func Test_flagset_InUse(t *testing.T) {
 					"two":   &two,
 					"three": &three,
 				},
-				inuse: set.New("one", "three"),
+				inuse: set.NewSet("one", "three"),
 			},
 			want: []cli.Flag{
 				&one,
@@ -121,7 +121,7 @@ func Test_flagset_InUse(t *testing.T) {
 					"two":   &two,
 					"three": &three,
 				},
-				inuse: set.New("one", "three"),
+				inuse: set.NewSet("one", "three"),
 			},
 			want: []cli.Flag{
 				&one,
@@ -139,7 +139,7 @@ func Test_flagset_InUse(t *testing.T) {
 			if len(got) != len(tt.want) {
 				t.Errorf("flagset.InUse() = wanted %d flag names, got %d", len(tt.want), len(got))
 			}
-			for _, f := range fs.inuse.Members() {
+			for f := range set.Elements(fs.inuse) {
 				expected := false
 				name := ""
 			loop:
@@ -162,7 +162,7 @@ func Test_flagset_InUse(t *testing.T) {
 func Test_flagset_Len(t *testing.T) {
 	type fields struct {
 		all   map[string]cli.Flag
-		inuse *set.Set[string]
+		inuse set.Set[string]
 	}
 	tests := []struct {
 		name   string
@@ -176,7 +176,7 @@ func Test_flagset_Len(t *testing.T) {
 					"one": &cli.BoolFlag{},
 					"two": &cli.BoolFlag{},
 				},
-				inuse: set.New("one", "two"),
+				inuse: set.NewSet("one", "two"),
 			},
 			want: 2,
 		},
@@ -1040,7 +1040,7 @@ func Test_printVersion(t *testing.T) {
 					Usage:   "verbose output",
 				},
 			},
-			inuse: set.New(
+			inuse: set.NewSet(
 				"config",
 				"json",
 				"log",
@@ -1050,7 +1050,7 @@ func Test_printVersion(t *testing.T) {
 		}
 		t.Run(tt.name, func(t *testing.T) {
 			args := []string{"test", "--version"}
-			flags.inuse = set.New[string]()
+			flags.inuse = set.NewSet[string]()
 			if tt.jason {
 				args = append(args, "--json")
 				flags.inuse.Add("json")
@@ -1158,7 +1158,7 @@ func TestRun(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	before := flags.inuse.Members()
+	before := flags.inuse.ToSlice()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			configuration = nil
@@ -1171,7 +1171,7 @@ func TestRun(t *testing.T) {
 			noOsExit = false
 		})
 	}
-	flags.inuse = set.New(before...)
+	flags.inuse = set.NewSet(before...)
 }
 
 type config struct {
@@ -1218,7 +1218,7 @@ func TestNoDefaultFlags(t *testing.T) {
 			}
 			got()
 			if flags.inuse.Contains("json") || flags.inuse.Contains("log") || flags.inuse.Contains("trace") || flags.inuse.Contains("verbose") {
-				t.Errorf("NoDefaultFlags() unexpected in-use flags = %v", flags.inuse.Members())
+				t.Errorf("NoDefaultFlags() unexpected in-use flags = %v", flags.inuse.ToSlice())
 			}
 
 		})
