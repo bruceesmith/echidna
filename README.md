@@ -225,7 +225,7 @@ Run(context.Background(), cmd, NoDefaultFlags())
 //    help, h     Shows a list of commands or help for one command
 //
 // GLOBAL OPTIONS:
-//    -i value       An integer (default: 22)
+//    -i int         An integer (default: 22)
 //    --help, -h     show help
 //    --version, -v  print the version
 ```
@@ -247,7 +247,7 @@ COMMANDS:
    help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   -i value       An integer (default: 22)
+   -i int         An integer (default: 22)
    --help, -h     show help
    --version, -v  print the version
 ```
@@ -560,10 +560,10 @@ Run(
 //    help, h     Shows a list of commands or help for one command
 //
 // GLOBAL OPTIONS:
-//    -i value                                                     (default: 0) [$I]
-//    --config value, --cfg value [ --config value, --cfg value ]  comma-separated list of path(s) to configuration file(s)
-//    --help, -h                                                   show help
-//    --version, -v                                                print the version
+//    -i value                                                         (default: 0) [$I]
+//    --config string, --cfg string [ --config string, --cfg string ]  comma-separated list of path(s) to configuration file(s)
+//    --help, -h                                                       show help
+//    --version, -v                                                    print the version
 ```
 
 #### Output
@@ -583,10 +583,10 @@ COMMANDS:
    help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   -i value                                                     (default: 0) [$I]
-   --config value, --cfg value [ --config value, --cfg value ]  comma-separated list of path(s) to configuration file(s)
-   --help, -h                                                   show help
-   --version, -v                                                print the version
+   -i value                                                         (default: 0) [$I]
+   --config string, --cfg string [ --config string, --cfg string ]  comma-separated list of path(s) to configuration file(s)
+   --help, -h                                                       show help
+   --version, -v                                                    print the version
 ```
 
 </p>
