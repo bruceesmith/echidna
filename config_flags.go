@@ -9,10 +9,10 @@ import (
 	"reflect"
 	"slices"
 
-	"github.com/bruceesmith/sflags"
-	"github.com/bruceesmith/sflags/gen/gcli"
 	"github.com/jinzhu/copier"
 	"github.com/urfave/cli/v3"
+	"github.com/urfave/sflags"
+	"github.com/urfave/sflags/gen/gcli"
 )
 
 // binder is the heart of the flag-binding mechanism:

@@ -4,13 +4,13 @@ go 1.24.0
 
 require (
 	github.com/bruceesmith/logger v1.3.2
-	github.com/bruceesmith/sflags v0.3.2
 	github.com/bruceesmith/terminator v1.0.0
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.1.0
+	github.com/urfave/sflags v0.4.1
 
 )
 

@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/bruceesmith/sflags"
 	"github.com/urfave/cli/v3"
+	"github.com/urfave/sflags"
 )
 
 func TestDescTag(t *testing.T) {
