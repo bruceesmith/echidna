@@ -9,7 +9,7 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.10.0
-	github.com/urfave/cli/v3 v3.1.1
+	github.com/urfave/cli/v3 v3.3.2
 	github.com/urfave/sflags v0.4.1
 
 )
@@ -23,7 +23,7 @@ require (
 	github.com/boyter/scc v2.12.0+incompatible // indirect
 	github.com/cheggaaa/pb/v3 v3.1.7 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dbaggerman/cuba v0.3.2 // indirect
