@@ -866,7 +866,7 @@ func Test_readConfig(t *testing.T) {
 		name       string
 		args       args
 		wantErr    bool
-		wantStruct map[string]interface{}
+		wantStruct map[string]any
 	}{
 		{
 			name: "ok",
@@ -881,7 +881,7 @@ func Test_readConfig(t *testing.T) {
 				},
 			},
 			wantErr: false,
-			wantStruct: map[string]interface{}{
+			wantStruct: map[string]any{
 				"i": 22,
 			},
 		},
@@ -898,7 +898,7 @@ func Test_readConfig(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			wantStruct: map[string]interface{}{
+			wantStruct: map[string]any{
 				"i": 22,
 			},
 		},
@@ -920,7 +920,7 @@ func Test_readConfig(t *testing.T) {
 				},
 			},
 			wantErr: true,
-			wantStruct: map[string]interface{}{
+			wantStruct: map[string]any{
 				"i": 22,
 			},
 		},
