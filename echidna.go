@@ -271,12 +271,7 @@ func Configuration(config Configurator, loaders []Loader) Option {
 // Thus flag is intended to support custom FlagBase types
 func flag(cmd *cli.Command, name string) (value any, found bool) {
 	has := func(names []string, name string) bool {
-		for _, n := range names {
-			if n == name {
-				return true
-			}
-		}
-		return false
+		return slices.Contains(names, name)
 	}
 
 	if has(cmd.FlagNames(), name) {

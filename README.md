@@ -58,7 +58,7 @@ var (
 ```
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L442>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L437>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
@@ -653,7 +653,7 @@ config is {33}
 </details>
 
 <a name="NoDefaultFlags"></a>
-### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L504>)
+### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L499>)
 
 ```go
 func NoDefaultFlags() Option
@@ -662,7 +662,7 @@ func NoDefaultFlags() Option
 NoDefaultFlags is a convenience function which is equivalent to calling all of NoJSON, NoLog, NoTrace, and NoVerbose
 
 <a name="NoJSON"></a>
-### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L515>)
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L510>)
 
 ```go
 func NoJSON() Option
@@ -671,7 +671,7 @@ func NoJSON() Option
 NoJSON removes the default flag \-\-json
 
 <a name="NoLog"></a>
-### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L523>)
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L518>)
 
 ```go
 func NoLog() Option
@@ -680,7 +680,7 @@ func NoLog() Option
 NoLog removes the default flag \-\-log
 
 <a name="NoTrace"></a>
-### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L531>)
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L526>)
 
 ```go
 func NoTrace() Option
@@ -689,7 +689,7 @@ func NoTrace() Option
 NoTrace removes the default flag \-\-trace
 
 <a name="NoVerbose"></a>
-### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L539>)
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L534>)
 
 ```go
 func NoVerbose() Option

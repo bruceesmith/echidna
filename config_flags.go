@@ -214,7 +214,7 @@ func mapFields(v reflect.Value, prefix string, result *map[string]reflect.Value)
 	value := v
 	tipe := value.Type()
 	if tipe.Kind() == reflect.Struct {
-		for i := 0; i < tipe.NumField(); i++ {
+		for i := range tipe.NumField() {
 			field := tipe.Field(i)
 			if field.Type.Kind() != reflect.Struct {
 				(*result)[prefix+parseField(field, opts.prefix)] = value.Field(i)
