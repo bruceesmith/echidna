@@ -43,10 +43,10 @@ github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6r
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/boyter/scc v2.12.0+incompatible h1:Sxhi1Ry3gdreoaF0xEITQSdjR+pJT0cXHXhlDw5FHT0=
 github.com/boyter/scc v2.12.0+incompatible/go.mod h1:VB5w4e0dahmIiKnpZ7LRh/sjauoY0BmCWjIzZcShNY0=
-github.com/bruceesmith/logger v1.3.2 h1:SgH4Sw4vHRZaR0gb8vbTR/0x1AyIqHiDk6OZPZbzBWA=
-github.com/bruceesmith/logger v1.3.2/go.mod h1:TEDAEVN0PZgt0iSb/3NMMUh6e5nvsO53mM/HZWXjOlM=
-github.com/bruceesmith/terminator v1.0.0 h1:CUIWFacYk6M7nlFA8zBAob/IaFCx3UhShHRdYBKh1OE=
-github.com/bruceesmith/terminator v1.0.0/go.mod h1:axtMcro3GXAh8LgqLMkB5jV/LPbuWWJjXy+T5i/PaQ8=
+github.com/bruceesmith/logger v1.3.3 h1:+n9xUIVJfKWDswUn3yq3t4pELoOajdufm776N66kNUI=
+github.com/bruceesmith/logger v1.3.3/go.mod h1:enejNodDmcMd7gaMv8+ymCnOS8coCfYyW6PLlC5Mvo0=
+github.com/bruceesmith/terminator v1.0.2 h1:XAh+1bNyqm8tSZhtYq7RFEFLJNlqhZWWRJ8HkZuh8hY=
+github.com/bruceesmith/terminator v1.0.2/go.mod h1:89KqIMhbGZnCudEPRBukpa8ttbdScvHMzBjVz+x2qbo=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cheggaaa/pb v2.0.7+incompatible/go.mod h1:pQciLPpbU0oxA0h+VJYYLxO+XeDQb5pZijXscXHm81s=
@@ -497,8 +497,8 @@ golang.org/x/sys v0.0.0-20220908164124-27713097b956/go.mod h1:oPkhp1MJrh7nUepCBc
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.33.0 h1:q3i8TbbEz+JRD9ywIRlyRAQbM0qF7hu24q3teo2hbuw=
 golang.org/x/sys v0.33.0/go.mod h1:BJP2sWEmIv4KK5OTEluFJCKSidICx8ciO85XgH3Ak8k=
-golang.org/x/telemetry v0.0.0-20250620142617-90b6ad39f257 h1:8k4p5agSiW/KFUN1Ywjs6npofCqkcV+zbhUG/BbauSc=
-golang.org/x/telemetry v0.0.0-20250620142617-90b6ad39f257/go.mod h1:mUcjA5g0luJpMYCLjhH91f4t4RAUNp+zq9ZmUoqPD7M=
+golang.org/x/telemetry v0.0.0-20250701142123-2f1f7721456e h1:MHz8dUHdY3PbYxYKIYoRLcXTM8ZGDAEcT4DZWiTPWRA=
+golang.org/x/telemetry v0.0.0-20250701142123-2f1f7721456e/go.mod h1:mUcjA5g0luJpMYCLjhH91f4t4RAUNp+zq9ZmUoqPD7M=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/term v0.32.0 h1:DR4lr0TjUs3epypdhTOkMmuF5CDFJ/8pOnbzMZPQ7bg=
 golang.org/x/term v0.32.0/go.mod h1:uZG1FhGx848Sqfsq4/DlJr3xGGsYMu/L5GW4abiaEPQ=

@@ -3,8 +3,8 @@ module github.com/bruceesmith/echidna
 go 1.24.4
 
 require (
-	github.com/bruceesmith/logger v1.3.2
-	github.com/bruceesmith/terminator v1.0.0
+	github.com/bruceesmith/logger v1.3.3
+	github.com/bruceesmith/terminator v1.0.2
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
@@ -82,7 +82,7 @@ require (
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/telemetry v0.0.0-20250620142617-90b6ad39f257 // indirect
+	golang.org/x/telemetry v0.0.0-20250701142123-2f1f7721456e // indirect
 	golang.org/x/term v0.32.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/tools v0.34.0 // indirect
