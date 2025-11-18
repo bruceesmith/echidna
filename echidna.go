@@ -288,7 +288,11 @@ func flag(cmd *cli.Command, name string) (value any, found bool) {
 			}
 			fb, ok := flag.(getter)
 			if ok {
-				return fb.GetValue(), true
+				value = fb.GetValue()
+				if sv, isString := value.(string); isString {
+					value = strings.Trim(sv, `"`)
+				}
+				return value, true
 			}
 			// Flag is defined but is not a FlagBase - it can't be handled in this function
 			break
