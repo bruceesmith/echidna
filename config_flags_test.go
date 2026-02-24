@@ -540,7 +540,7 @@ func TestConfigFlags(t *testing.T) {
 			err := got()
 			if err != nil {
 				if !tt.wantErr {
-					t.Errorf("ConfigFlags() = %v, want %v %v", err, tt.wantErr, reflect.TypeOf(cmd))
+					t.Errorf("ConfigFlags() = %v, want %v %v", err, tt.wantErr, reflect.TypeFor[cli.Command]())
 				}
 			}
 			for _, wfn := range tt.wantFlags {

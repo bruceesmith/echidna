@@ -54,8 +54,6 @@ func Test_parseField(t *testing.T) {
 		M int `flag:"~em eminem"`
 	}
 	var (
-		cfg                               config1
-		cfg2                              config2
 		fld, fld1, fld2, fld3, fld4, fld5 reflect.StructField
 	)
 	type args struct {
@@ -63,12 +61,12 @@ func Test_parseField(t *testing.T) {
 		prefix string
 	}
 
-	fld, _ = reflect.TypeOf(cfg.C1).FieldByName("I")
-	fld1, _ = reflect.TypeOf(cfg2).FieldByName("I")
-	fld2, _ = reflect.TypeOf(cfg2).FieldByName("J")
-	fld3, _ = reflect.TypeOf(cfg2).FieldByName("K")
-	fld4, _ = reflect.TypeOf(cfg2).FieldByName("L")
-	fld5, _ = reflect.TypeOf(cfg2).FieldByName("M")
+	fld, _ = reflect.TypeFor[config]().FieldByName("I")
+	fld1, _ = reflect.TypeFor[config2]().FieldByName("I")
+	fld2, _ = reflect.TypeFor[config2]().FieldByName("J")
+	fld3, _ = reflect.TypeFor[config2]().FieldByName("K")
+	fld4, _ = reflect.TypeFor[config2]().FieldByName("L")
+	fld5, _ = reflect.TypeFor[config2]().FieldByName("M")
 	tests := []struct {
 		name string
 		args args
