@@ -3,7 +3,7 @@
 // License that can be found in the LICENSE file.
 
 /*
-Package echidna builds upon the Github packages [knadh/koanf], [urfave/cli/v3], [bruceesmith/sflags] to make it extremely simple to use the
+Package echidna builds upon the Github packages [knadh/koanf], [urfave/cli/v3], [urfave/sflags] to make it extremely simple to use the
 features of these excellent packages in concert.
 
 Every program using echidna will expose a standard set of command-line flags (--json, --log, --trace, --verbose) in
@@ -17,6 +17,7 @@ bound either to the root command or to one or more child commands.
 
 [knadh/koanf]: https://github.com/knadh/koanf
 [urfave/cli/v3]: https://github.com/urfave/cli
+
 [bruceesmith/sflags]: https://github.com/urfave/sflags
 */
 package echidna

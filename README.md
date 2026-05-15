@@ -13,7 +13,7 @@
 import "github.com/bruceesmith/echidna"
 ```
 
-Package echidna builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>), [urfave/cli/v3](<https://github.com/urfave/cli>), [bruceesmith/sflags](<https://github.com/urfave/sflags>) to make it extremely simple to use the features of these excellent packages in concert.
+Package echidna builds upon the Github packages [knadh/koanf](<https://github.com/knadh/koanf>), [urfave/cli/v3](<https://github.com/urfave/cli>), [urfave/sflags](<https://pkg.go.dev/urfave/sflags/>) to make it extremely simple to use the features of these excellent packages in concert.
 
 Every program using echidna will expose a standard set of command\-line flags \(\-\-json, \-\-log, \-\-trace, \-\-verbose\) in addition to the standard flags provided by urfave/cli/v3 \(\-\-help and \-\-version\).
 
@@ -58,7 +58,7 @@ var (
 ```
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L441>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L442>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
@@ -316,7 +316,7 @@ GLOBAL OPTIONS:
 </details>
 
 <a name="Configurator"></a>
-## type [Configurator](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L45-L47>)
+## type [Configurator](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L46-L48>)
 
 Configurator is the interface for a configuration struct
 
@@ -408,7 +408,7 @@ func Validator(val sflags.ValidateFunc) FlagOption
 Validator is an optional function that will be called to to validate each struct\-field bound flag
 
 <a name="Loader"></a>
-## type [Loader](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L59-L63>)
+## type [Loader](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L60-L64>)
 
 Loader is a parameter to [Configuration](<#Configuration>) which determines how configuration sources are loaded into the confguration struct
 
@@ -421,7 +421,7 @@ type Loader struct {
 ```
 
 <a name="Option"></a>
-## type [Option](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L66>)
+## type [Option](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L67>)
 
 Option is a functional parameter for Run\(\)
 
@@ -593,7 +593,7 @@ GLOBAL OPTIONS:
 </details>
 
 <a name="Configuration"></a>
-### func [Configuration](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L248>)
+### func [Configuration](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L249>)
 
 ```go
 func Configuration(config Configurator, loaders []Loader) Option
@@ -653,7 +653,7 @@ config is {33}
 </details>
 
 <a name="NoDefaultFlags"></a>
-### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L503>)
+### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L504>)
 
 ```go
 func NoDefaultFlags() Option
@@ -662,7 +662,7 @@ func NoDefaultFlags() Option
 NoDefaultFlags is a convenience function which is equivalent to calling all of NoJSON, NoLog, NoTrace, and NoVerbose
 
 <a name="NoJSON"></a>
-### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L514>)
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L515>)
 
 ```go
 func NoJSON() Option
@@ -671,7 +671,7 @@ func NoJSON() Option
 NoJSON removes the default flag \-\-json
 
 <a name="NoLog"></a>
-### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L522>)
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L523>)
 
 ```go
 func NoLog() Option
@@ -680,7 +680,7 @@ func NoLog() Option
 NoLog removes the default flag \-\-log
 
 <a name="NoTrace"></a>
-### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L530>)
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L531>)
 
 ```go
 func NoTrace() Option
@@ -689,7 +689,7 @@ func NoTrace() Option
 NoTrace removes the default flag \-\-trace
 
 <a name="NoVerbose"></a>
-### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L538>)
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L539>)
 
 ```go
 func NoVerbose() Option
