@@ -14,8 +14,9 @@ confirm:
 audit: test generate
 	go mod tidy -diff
 	go mod verify
-	@test -z "$(gofmt -l .)" 
+	@test -z "$(gofmt -l .)"
 	go vet ./...
+	go fix -diff ./...
 	go tool staticcheck -checks all ./...
 	go tool govulncheck -show verbose ./...
 	go tool goreportcard-cli -v ./...
@@ -51,7 +52,7 @@ no-dirty:
 	@test -z "$(shell git status --porcelain)"
 
 ## prod: deploy the application to production
-.PHONY: prod 
+.PHONY: prod
 prod: audit no-dirty
 	GOOS=linux GOARCH=amd64 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" ${main_package_path}
 
