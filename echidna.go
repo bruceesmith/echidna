@@ -38,7 +38,7 @@ import (
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	set "github.com/deckarep/golang-set/v2"
-	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/v2"
 	"github.com/urfave/cli/v3"
 )
 

@@ -17,11 +17,11 @@ import (
 
 	"github.com/bruceesmith/logger"
 	set "github.com/deckarep/golang-set/v2"
-	"github.com/knadh/koanf"
 	kjson "github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/structs"
+	"github.com/knadh/koanf/v2"
 	"github.com/urfave/cli/v3"
 )
 

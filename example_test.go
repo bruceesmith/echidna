@@ -10,9 +10,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/v2"
 	"github.com/urfave/cli/v3"
 )
 
