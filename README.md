@@ -58,7 +58,7 @@ var (
 ```
 
 <a name="Run"></a>
-## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L442>)
+## func [Run](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L467>)
 
 ```go
 func Run(ctx context.Context, command *cli.Command, options ...Option)
@@ -327,7 +327,7 @@ type Configurator interface {
 ```
 
 <a name="FlagOption"></a>
-## type [FlagOption](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L44>)
+## type [FlagOption](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L45>)
 
 FlagOption is a functional option parameter for the ConfigFlags function
 
@@ -336,7 +336,7 @@ type FlagOption func()
 ```
 
 <a name="DescTag"></a>
-### func [DescTag](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L67>)
+### func [DescTag](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L68>)
 
 ```go
 func DescTag(tag string) FlagOption
@@ -345,7 +345,7 @@ func DescTag(tag string) FlagOption
 DescTag sets the struct tag where usage text is configured
 
 <a name="EnvDivider"></a>
-### func [EnvDivider](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L75>)
+### func [EnvDivider](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L76>)
 
 ```go
 func EnvDivider(divider string) FlagOption
@@ -354,7 +354,7 @@ func EnvDivider(divider string) FlagOption
 EnvDivider is the character in between parts of an environment variable bound to a command line struct\-bound flag
 
 <a name="EnvPrefix"></a>
-### func [EnvPrefix](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L83>)
+### func [EnvPrefix](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L84>)
 
 ```go
 func EnvPrefix(prefix string) FlagOption
@@ -363,7 +363,7 @@ func EnvPrefix(prefix string) FlagOption
 EnvPrefix is an optional prefix for an environment variable bound to a command line struct\-bound flag
 
 <a name="FlagDivider"></a>
-### func [FlagDivider](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L91>)
+### func [FlagDivider](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L92>)
 
 ```go
 func FlagDivider(divider string) FlagOption
@@ -372,7 +372,7 @@ func FlagDivider(divider string) FlagOption
 FlagDivider is the character in between parts of a struct\-bound command line flag's name
 
 <a name="FlagTag"></a>
-### func [FlagTag](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L99>)
+### func [FlagTag](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L100>)
 
 ```go
 func FlagTag(tag string) FlagOption
@@ -381,7 +381,7 @@ func FlagTag(tag string) FlagOption
 FlagTag is the struct tag used to configure struct\-bound command line flags
 
 <a name="Flatten"></a>
-### func [Flatten](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L107>)
+### func [Flatten](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L108>)
 
 ```go
 func Flatten(flatten bool) FlagOption
@@ -390,7 +390,7 @@ func Flatten(flatten bool) FlagOption
 Flatten determines the name of a command line flag bound to a an anonymous struct field
 
 <a name="Prefix"></a>
-### func [Prefix](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L115>)
+### func [Prefix](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L116>)
 
 ```go
 func Prefix(prefix string) FlagOption
@@ -399,7 +399,7 @@ func Prefix(prefix string) FlagOption
 Prefix is an optional prefix for the names of all struct\-bound command line flags
 
 <a name="Validator"></a>
-### func [Validator](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L123>)
+### func [Validator](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L124>)
 
 ```go
 func Validator(val sflags.ValidateFunc) FlagOption
@@ -430,7 +430,7 @@ type Option func() error
 ```
 
 <a name="ConfigFlags"></a>
-### func [ConfigFlags](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L132>)
+### func [ConfigFlags](<https://github.com/bruceesmith/echidna/blob/main/config_flags.go#L133>)
 
 ```go
 func ConfigFlags(configs []Configurator, command *cli.Command, ops ...FlagOption) Option
@@ -653,7 +653,7 @@ config is {33}
 </details>
 
 <a name="NoDefaultFlags"></a>
-### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L504>)
+### func [NoDefaultFlags](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L537>)
 
 ```go
 func NoDefaultFlags() Option
@@ -662,7 +662,7 @@ func NoDefaultFlags() Option
 NoDefaultFlags is a convenience function which is equivalent to calling all of NoJSON, NoLog, NoTrace, and NoVerbose
 
 <a name="NoJSON"></a>
-### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L515>)
+### func [NoJSON](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L548>)
 
 ```go
 func NoJSON() Option
@@ -671,7 +671,7 @@ func NoJSON() Option
 NoJSON removes the default flag \-\-json
 
 <a name="NoLog"></a>
-### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L523>)
+### func [NoLog](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L556>)
 
 ```go
 func NoLog() Option
@@ -680,7 +680,7 @@ func NoLog() Option
 NoLog removes the default flag \-\-log
 
 <a name="NoTrace"></a>
-### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L531>)
+### func [NoTrace](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L564>)
 
 ```go
 func NoTrace() Option
@@ -689,7 +689,7 @@ func NoTrace() Option
 NoTrace removes the default flag \-\-trace
 
 <a name="NoVerbose"></a>
-### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L539>)
+### func [NoVerbose](<https://github.com/bruceesmith/echidna/blob/main/echidna.go#L572>)
 
 ```go
 func NoVerbose() Option

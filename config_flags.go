@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"slices"
 
+	"github.com/bruceesmith/logger"
 	"github.com/jinzhu/copier"
 	"github.com/urfave/cli/v3"
 	"github.com/urfave/sflags"
@@ -187,7 +188,10 @@ func applyFlagOverrides(names []string, b binder) {
 // clone safely creates an exact copy of a configuration struct
 func clone(in Configurator) Configurator {
 	out := reflect.New(reflect.ValueOf(in).Elem().Type()).Interface().(Configurator)
-	copier.Copy(out, in)
+	err := copier.Copy(out, in)
+	if err != nil {
+		logger.Warn("failed to clone Configurator", "error", err)
+	}
 	return out
 }
 

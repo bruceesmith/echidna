@@ -335,7 +335,7 @@ func loaders(paths []string) ([]configLoader, error) {
 func logging(command *cli.Command) error {
 	// Change the logging format if JSON was requested
 	if command.Bool("json") {
-		logger.Configure(
+		err := logger.Configure(
 			logger.ConfigSetting{
 				AppliesTo: logger.Norm,
 				Key:       logger.FormatSetting,
@@ -347,6 +347,10 @@ func logging(command *cli.Command) error {
 				Value:     logger.JSON,
 			},
 		)
+		if err != nil {
+			logger.Error("Error redirecting the normal and trace loggers", "error", err.Error())
+			os.Exit(1)
+		}
 	}
 	// Set the logging level
 	value, found := flag(command, "log")
@@ -354,7 +358,10 @@ func logging(command *cli.Command) error {
 		var level logger.LogLevel
 		switch lev := value.(type) {
 		case string:
-			level.Set(lev)
+			err := level.Set(lev)
+			if err != nil {
+				return fmt.Errorf("cannot set LogLevel from %v type %v", value, reflect.TypeOf(value))
+			}
 		case logger.LogLevel:
 			level = lev
 		default:
@@ -400,19 +407,37 @@ func printVersion(cmd *cli.Command) {
 	if cmd.Bool("json") {
 		bites, err := json.Marshal(info)
 		if err != nil {
-			fmt.Fprintln(cmd.Writer, `{"error":"`+err.Error()+`"}`)
+			_, err = fmt.Fprintln(cmd.Writer, `{"error":"`+err.Error()+`"}`)
+			if err != nil {
+				fmt.Println(`{"error":"` + err.Error() + `"}`)
+			}
 		} else {
-			fmt.Fprintln(cmd.Writer, string(bites))
+			_, err = fmt.Fprintln(cmd.Writer, string(bites))
+			if err != nil {
+				fmt.Println(string(bites))
+			}
 		}
 	} else {
-		fmt.Fprintln(cmd.Writer, info.Name, info.Version)
+		_, err := fmt.Fprintln(cmd.Writer, info.Name, info.Version)
+		if err != nil {
+			fmt.Println(info.Name, info.Version)
+		}
 		if cmd.Bool("verbose") {
-			fmt.Fprintln(cmd.Writer, "Compiled with Go version", info.GoVersion)
+			_, err := fmt.Fprintln(cmd.Writer, "Compiled with Go version", info.GoVersion)
+			if err != nil {
+				fmt.Println("Compiled with Go version", info.GoVersion)
+			}
 			if info.Commit != "" {
-				fmt.Fprintln(cmd.Writer, "Git commit", info.Commit)
+				_, err = fmt.Fprintln(cmd.Writer, "Git commit", info.Commit)
+				if err != nil {
+					fmt.Println("Git commit", info.Commit)
+				}
 			}
 			if info.Date != `Filled in during the build` {
-				fmt.Fprintln(cmd.Writer, "Built", info.Date)
+				_, err = fmt.Fprintln(cmd.Writer, "Built", info.Date)
+				if err != nil {
+					fmt.Println("Built", info.Date)
+				}
 			}
 		}
 	}
@@ -471,22 +496,30 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	command.Before = before
 	// Direct logging to the same io.Writers as the command
 	if command.Root().Writer != nil {
-		logger.Configure(
+		err = logger.Configure(
 			logger.ConfigSetting{
 				AppliesTo: logger.Norm,
 				Key:       logger.DestinationSetting,
 				Value:     command.Root().Writer,
 			},
 		)
+		if err != nil {
+			logger.Error("Error redirecting the normal logger", "error", err.Error())
+			os.Exit(1)
+		}
 	}
 	if command.Root().ErrWriter != nil {
-		logger.Configure(
+		err = logger.Configure(
 			logger.ConfigSetting{
 				AppliesTo: logger.Tracy,
 				Key:       logger.DestinationSetting,
 				Value:     command.Root().ErrWriter,
 			},
 		)
+		if err != nil {
+			logger.Error("Error redirecting the trace logger", "error", err.Error())
+			os.Exit(1)
+		}
 	}
 	err = command.Run(ctx, os.Args)
 	configuration = nil // Required for the ExampleConfig* tests to pass

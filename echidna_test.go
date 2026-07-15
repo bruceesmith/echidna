@@ -699,7 +699,10 @@ func Test_flag(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.args.cmd.Action != nil {
-				tt.args.cmd.Run(context.Background(), tt.args.line)
+				err := tt.args.cmd.Run(context.Background(), tt.args.line)
+				if err != nil {
+					t.Errorf("Run returned error %v", err)
+				}
 			}
 			gotValue, gotFound := flag(tt.args.cmd, tt.args.name)
 			if gotValue != tt.wantValue {
@@ -841,8 +844,11 @@ func Test_logging(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.args.command.Run(context.Background(), tt.args.line)
-			if err := logging(tt.args.command); (err != nil) != tt.wantErr {
+			err := tt.args.command.Run(context.Background(), tt.args.line)
+			if err != nil {
+				t.Errorf("Run returned error %v", err)
+			}
+			if err = logging(tt.args.command); (err != nil) != tt.wantErr {
 				t.Errorf("logging() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if logger.Level() != tt.wantLevel {
@@ -1063,7 +1069,10 @@ func Test_printVersion(t *testing.T) {
 			tt.args.cmd.Writer = buf
 			addFlags(tt.args.cmd, flags.InUse())
 			cli.VersionPrinter = printVersion
-			tt.args.cmd.Run(context.Background(), args)
+			err := tt.args.cmd.Run(context.Background(), args)
+			if err != nil {
+				t.Errorf("Run returned error %v", err)
+			}
 		})
 	}
 }
@@ -1216,7 +1225,10 @@ func TestNoDefaultFlags(t *testing.T) {
 			if got = NoDefaultFlags(); got == nil {
 				t.Errorf("NoDefaultFlags() returned nil ")
 			}
-			got()
+			err := got()
+			if err != nil {
+				t.Errorf("NoDefaultFlags() returned error %v ", err)
+			}
 			if flags.inuse.Contains("json") || flags.inuse.Contains("log") || flags.inuse.Contains("trace") || flags.inuse.Contains("verbose") {
 				t.Errorf("NoDefaultFlags() unexpected in-use flags = %v", flags.inuse.ToSlice())
 			}
@@ -1239,7 +1251,10 @@ func TestNoJSON(t *testing.T) {
 			if got = NoJSON(); got == nil {
 				t.Errorf("NoJson() returned nil ")
 			}
-			got()
+			err := got()
+			if err != nil {
+				t.Errorf("NoJSON returned error %v ", err)
+			}
 			if flags.inuse.Contains("json") {
 				t.Error("NoJson failed to remove the json flag")
 			}
@@ -1261,7 +1276,10 @@ func TestNoLog(t *testing.T) {
 			if got = NoLog(); got == nil {
 				t.Errorf("NoLog() returned nil ")
 			}
-			got()
+			err := got()
+			if err != nil {
+				t.Errorf("NoLog() returned error %v ", err)
+			}
 			if flags.inuse.Contains("log") {
 				t.Error("NoLog failed to remove the log flag")
 			}
@@ -1283,7 +1301,10 @@ func TestNoTrace(t *testing.T) {
 			if got = NoTrace(); got == nil {
 				t.Errorf("NoTrace() returned nil ")
 			}
-			got()
+			err := got()
+			if err != nil {
+				t.Errorf("NoTrace() returned error %v ", err)
+			}
 			if flags.inuse.Contains("trace") {
 				t.Error("NoTrace failed to remove the trace flag")
 			}
@@ -1305,7 +1326,10 @@ func TestNoVerbose(t *testing.T) {
 			if got = NoVerbose(); got == nil {
 				t.Errorf("NoVerbose() returned nil ")
 			}
-			got()
+			err := got()
+			if err != nil {
+				t.Errorf("NoVerbose() returned error %v ", err)
+			}
 			if flags.inuse.Contains("verbose") {
 				t.Error("NoVerbose failed to remove the verbose flag")
 			}
