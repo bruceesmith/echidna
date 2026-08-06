@@ -3,12 +3,12 @@ module github.com/bruceesmith/echidna
 go 1.26
 
 require (
-	github.com/bruceesmith/logger v1.3.9
-	github.com/bruceesmith/terminator v1.2.1
+	github.com/bruceesmith/logger v1.3.10
+	github.com/bruceesmith/terminator v1.2.2
 	github.com/deckarep/golang-set/v2 v2.9.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/knadh/koanf v1.5.0
-	github.com/knadh/koanf/v2 v2.3.5
+	github.com/knadh/koanf/v2 v2.3.6
 	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v3 v3.10.1
 	github.com/urfave/sflags v0.4.1
@@ -75,12 +75,12 @@ require (
 	go.mongodb.org/mongo-driver v1.17.9 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/exp/typeparams v0.0.0-20260709172345-9ea1abe57597 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20260727155853-b88d891fe743 // indirect
 	golang.org/x/mod v0.38.0 // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260710170516-c325552849a7 // indirect
+	golang.org/x/telemetry v0.0.0-20260804195142-bdd03c3c8848 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 	golang.org/x/tools v0.48.0 // indirect
