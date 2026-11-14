@@ -6,10 +6,10 @@ package echidna
 
 import (
 	"fmt"
+	"log/slog"
 	"reflect"
 	"slices"
 
-	"github.com/bruceesmith/logger"
 	"github.com/jinzhu/copier"
 	"github.com/urfave/cli/v3"
 	"github.com/urfave/sflags"
@@ -190,7 +190,7 @@ func clone(in Configurator) Configurator {
 	out := reflect.New(reflect.ValueOf(in).Elem().Type()).Interface().(Configurator)
 	err := copier.Copy(out, in)
 	if err != nil {
-		logger.Warn("failed to clone Configurator", "error", err)
+		slog.Warn("failed to clone Configurator", "error", err)
 	}
 	return out
 }

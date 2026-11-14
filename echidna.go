@@ -348,7 +348,7 @@ func logging(command *cli.Command) error {
 			},
 		)
 		if err != nil {
-			logger.Error("Error redirecting the normal and trace loggers", "error", err.Error())
+			slog.Error("Error redirecting the normal and trace loggers", "error", err.Error())
 			os.Exit(1)
 		}
 	}
@@ -478,7 +478,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	for _, opt := range options {
 		err := opt()
 		if err != nil {
-			logger.Error("Error executing Run() options", "error", err.Error())
+			slog.Error("Error executing Run() options", "error", err.Error())
 			os.Exit(1)
 		}
 	}
@@ -504,7 +504,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 			},
 		)
 		if err != nil {
-			logger.Error("Error redirecting the normal logger", "error", err.Error())
+			slog.Error("Error redirecting the normal logger", "error", err.Error())
 			os.Exit(1)
 		}
 	}
@@ -517,7 +517,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 			},
 		)
 		if err != nil {
-			logger.Error("Error redirecting the trace logger", "error", err.Error())
+			slog.Error("Error redirecting the trace logger", "error", err.Error())
 			os.Exit(1)
 		}
 	}
@@ -525,7 +525,7 @@ func Run(ctx context.Context, command *cli.Command, options ...Option) {
 	configuration = nil // Required for the ExampleConfig* tests to pass
 	terminator.Wait()
 	if err != nil && !strings.Contains(err.Error(), "flag provided but not defined") {
-		logger.Error("Error performing command", "error", err.Error(), "command", command.FullName())
+		slog.Error("Error performing command", "error", err.Error(), "command", command.FullName())
 		if !noOsExit {
 			os.Exit(1)
 		}
