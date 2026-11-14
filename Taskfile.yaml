@@ -20,6 +20,12 @@ tasks:
       - go tool -modfile=tools/go.mod scc
       - golangci-lint run
 
+  deps:
+    desc: "Update dependencies"
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
   generate:
     desc: "Run code generation"
     cmds:
